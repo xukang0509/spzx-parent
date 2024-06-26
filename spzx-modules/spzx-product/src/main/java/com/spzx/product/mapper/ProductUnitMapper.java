@@ -21,4 +21,13 @@ public interface ProductUnitMapper extends BaseMapper<ProductUnit> {
      */
     IPage<ProductUnit> selectProductUnitPage(@Param("page") Page<ProductUnit> pageParam,
                                              @Param("query") ProductUnit productUnit);
+
+    /**
+     * 批量删除品牌
+     *
+     * @param ids      需要删除的主键集合
+     * @param username 用户
+     * @return 结果
+     */
+    int deleteProductUnitByIds(@Param("ids") Long[] ids, @Param("username") String username);
 }

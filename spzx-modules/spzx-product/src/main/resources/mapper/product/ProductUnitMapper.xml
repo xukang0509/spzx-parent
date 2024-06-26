@@ -16,4 +16,13 @@
             and name like concat('%', #{query.name}, '%')
         </if>
     </select>
+
+    <update id="deleteProductUnitByIds">
+        update product_unit
+        set del_flag = 2, update_by = #{username}, update_time = sysdate()
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

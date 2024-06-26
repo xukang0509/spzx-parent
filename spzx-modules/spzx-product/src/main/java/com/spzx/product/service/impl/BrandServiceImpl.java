@@ -1,5 +1,6 @@
 package com.spzx.product.service.impl;
 
+import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.Brand;
 import com.spzx.product.mapper.BrandMapper;
 import com.spzx.product.service.BrandService;
@@ -68,7 +69,7 @@ public class BrandServiceImpl implements BrandService {
      */
     @Override
     public int deleteBrandByIds(Long[] ids) {
-        return brandMapper.deleteBrandByIds(ids);
+        return brandMapper.deleteBrandByIds(ids, SecurityUtils.getUsername());
     }
 
     /**

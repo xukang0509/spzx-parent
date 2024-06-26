@@ -1,6 +1,7 @@
 package com.spzx.product.mapper;
 
 import com.spzx.product.domain.Brand;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -44,8 +45,9 @@ public interface BrandMapper {
     /**
      * 批量删除品牌
      *
-     * @param ids 需要删除的主键集合
+     * @param ids      需要删除的主键集合
+     * @param userName 用户
      * @return 结果
      */
-    int deleteBrandByIds(Long[] ids);
+    int deleteBrandByIds(@Param("ids") Long[] ids, @Param("userName") String userName);
 }

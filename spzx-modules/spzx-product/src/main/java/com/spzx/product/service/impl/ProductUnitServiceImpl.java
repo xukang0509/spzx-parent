@@ -10,7 +10,6 @@ import com.spzx.product.service.ProductUnitService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -83,6 +82,6 @@ public class ProductUnitServiceImpl extends ServiceImpl<ProductUnitMapper, Produ
      */
     @Override
     public int deleteProductUnitByIds(Long[] ids) {
-        return this.removeBatchByIds(Arrays.asList(ids)) ? 1 : 0;
+        return productUnitMapper.deleteProductUnitByIds(ids, SecurityUtils.getUsername());
     }
 }
