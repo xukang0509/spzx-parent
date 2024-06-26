@@ -55,4 +55,12 @@ public interface BrandService {
      * @return 品牌合集
      */
     List<Brand> selectBrandAll();
+
+    /**
+     * 品牌名称唯一性验证
+     *
+     * @param brand
+     * @return true 名称唯一；false 名称不唯一
+     */
+    boolean checkUniqueName(Brand brand);
 }

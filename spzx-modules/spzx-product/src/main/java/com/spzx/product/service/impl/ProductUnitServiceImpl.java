@@ -1,8 +1,10 @@
 package com.spzx.product.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.spzx.common.core.constant.UserConstants;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.ProductUnit;
 import com.spzx.product.mapper.ProductUnitMapper;
@@ -83,5 +85,24 @@ public class ProductUnitServiceImpl extends ServiceImpl<ProductUnitMapper, Produ
     @Override
     public int deleteProductUnitByIds(Long[] ids) {
         return productUnitMapper.deleteProductUnitByIds(ids, SecurityUtils.getUsername());
+    }
+
+    /**
+     * 商品单位唯一性名称检查
+     *
+     * @param productUnit
+     * @return
+     */
+    @Override
+    public boolean checkUniqueName(ProductUnit productUnit) {
+        long id = productUnit.getId() != null ? productUnit.getId() : -1L;
+        ProductUnit selectOne = productUnitMapper.selectOne(Wrappers.lambdaQuery(ProductUnit.class)
+                .eq(ProductUnit::getName, productUnit.getName())
+                .select(ProductUnit::getId)
+                .last("limit 1"));
+        if (selectOne != null && selectOne.getId().longValue() != id) {
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
     }
 }

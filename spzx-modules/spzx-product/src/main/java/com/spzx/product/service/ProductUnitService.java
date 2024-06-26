@@ -51,4 +51,12 @@ public interface ProductUnitService extends IService<ProductUnit> {
      * @return 结果
      */
     int deleteProductUnitByIds(Long[] ids);
+
+    /**
+     * 商品单位唯一性名称检查
+     *
+     * @param productUnit
+     * @return
+     */
+    boolean checkUniqueName(ProductUnit productUnit);
 }

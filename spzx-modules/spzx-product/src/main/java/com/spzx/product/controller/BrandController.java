@@ -41,6 +41,9 @@ public class BrandController extends BaseController {
     @Operation(summary = "新增品牌")
     @PostMapping
     public AjaxResult addBrand(@RequestBody @Validated Brand brand) {
+        if (!brandService.checkUniqueName(brand)) {
+            return error("新增品牌'" + brand.getName() + "'失败，分类品牌已存在");
+        }
         brand.setCreateBy(SecurityUtils.getUsername());
         brand.setUpdateBy(SecurityUtils.getUsername());
         return toAjax(brandService.insertBrand(brand));
@@ -49,6 +52,9 @@ public class BrandController extends BaseController {
     @Operation(summary = "修改品牌")
     @PutMapping
     public AjaxResult editBrand(@RequestBody @Validated Brand brand) {
+        if (!brandService.checkUniqueName(brand)) {
+            return error("更新品牌'" + brand.getName() + "'失败，分类品牌已存在");
+        }
         brand.setUpdateBy(SecurityUtils.getUsername());
         return toAjax(brandService.updateBrand(brand));
     }

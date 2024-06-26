@@ -50,4 +50,12 @@ public interface BrandMapper {
      * @return 结果
      */
     int deleteBrandByIds(@Param("ids") Long[] ids, @Param("userName") String userName);
+
+    /**
+     * 根据名称查找品牌
+     *
+     * @param name
+     * @return
+     */
+    Brand selectBrandByName(@Param("name") String name);
 }

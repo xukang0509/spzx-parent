@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spzx.product.mapper.ProductSpecMapper">
+
+    <select id="selectProductSpecList" resultType="com.spzx.product.domain.ProductSpec">
+        select ps.*, c.name as categoryName
+        from product_spec ps
+        left join category c on c.id = ps.category_id and c.del_flag = 0
+        <where>
+            ps.del_flag = 0
+            <if test="categoryId != null">
+                and ps.category_id = #{categoryId}
+            </if>
+            <if test="specName != null and specName != ''">
+                and ps.spec_name like concat('%', #{specName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <update id="deleteProductSpecByIds">
+        update product_spec
+        set del_flag = 2, update_by = #{username}, update_time = sysdate()
+        where del_flag = 0 and id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

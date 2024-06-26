@@ -1,5 +1,6 @@
 package com.spzx.product.service.impl;
 
+import com.spzx.common.core.constant.UserConstants;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.Brand;
 import com.spzx.product.mapper.BrandMapper;
@@ -80,5 +81,22 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<Brand> selectBrandAll() {
         return brandMapper.selectBrandList(null);
+    }
+
+    /**
+     * 品牌名称唯一性验证
+     *
+     * @param brand
+     * @return
+     */
+    @Override
+    public boolean checkUniqueName(Brand brand) {
+        long brandId = brand.getId() != null ? brand.getId() : -1L;
+        Brand selectBrand = brandMapper.selectBrandByName(brand.getName());
+        if (selectBrand != null && selectBrand.getId().longValue() != brandId) {
+            // 名称已存在
+            return UserConstants.NOT_UNIQUE;
+        }
+        return UserConstants.UNIQUE;
     }
 }

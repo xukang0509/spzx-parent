@@ -52,12 +52,18 @@ public class ProductUnitController extends BaseController {
     @Operation(summary = "新增商品单位")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated ProductUnit productUnit) {
+        if (!productUnitService.checkUniqueName(productUnit)) {
+            return error("新增商品单位'" + productUnit.getName() + "'失败，商品单位名称已存在");
+        }
         return toAjax(productUnitService.insertProductUnit(productUnit));
     }
 
     @Operation(summary = "修改商品单位")
     @PutMapping
     public AjaxResult edit(@RequestBody @Validated ProductUnit productUnit) {
+        if (!productUnitService.checkUniqueName(productUnit)) {
+            return error("更新商品单位'" + productUnit.getName() + "'失败，商品单位名称已存在");
+        }
         return toAjax(productUnitService.updateProductUnit(productUnit));
     }
 

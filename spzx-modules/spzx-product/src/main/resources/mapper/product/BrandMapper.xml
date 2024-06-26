@@ -71,9 +71,16 @@
     <update id="deleteBrandByIds">
         update brand
         set del_flag = 2, update_by = #{userName}, update_time = sysdate()
-        where id in
+        where del_flag = 0 and id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
     </update>
+
+    <select id="selectBrandByName" resultType="com.spzx.product.domain.Brand">
+        <include refid="selectBaseBrand"/>
+        where b.del_flag = 0
+        <if test="name != null and name != ''"> and b.name = #{name} </if>
+        limit 1
+    </select>
 </mapper>
