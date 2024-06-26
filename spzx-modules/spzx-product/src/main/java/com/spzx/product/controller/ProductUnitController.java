@@ -36,7 +36,8 @@ public class ProductUnitController extends BaseController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = true)
             Integer pageSize,
             @Parameter(name = "queryInfo", description = "查询对象", required = false)
-            ProductUnit productUnit) {
+            ProductUnit productUnit
+    ) {
         Page<ProductUnit> pageParam = new Page<>(pageNum, pageSize);
         IPage<ProductUnit> iPage = productUnitService.selectProductUnitPage(pageParam, productUnit);
         return getDataTable(iPage);
