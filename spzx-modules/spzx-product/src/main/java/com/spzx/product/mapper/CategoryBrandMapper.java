@@ -1,6 +1,7 @@
 package com.spzx.product.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.spzx.product.domain.Brand;
 import com.spzx.product.domain.CategoryBrand;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,4 +29,12 @@ public interface CategoryBrandMapper extends BaseMapper<CategoryBrand> {
      * @return 结果
      */
     int deleteCategoryBrandByIds(@Param("ids") Long[] ids, @Param("username") String username);
+
+    /**
+     * 根据分类ID获取品牌列表
+     *
+     * @param categoryId 分类ID
+     * @return 品牌列表
+     */
+    List<Brand> selectBrandListByCategoryId(@Param("categoryId") Long categoryId);
 }

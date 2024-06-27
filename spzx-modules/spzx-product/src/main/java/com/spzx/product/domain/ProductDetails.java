@@ -5,26 +5,20 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.spzx.common.core.web.domain.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * 商品sku属性表
+ * 商品详情对象 product_details
  */
-@Schema(description = "商品sku属性表")
+@Schema(description = "商品详情")
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName(value = "spzx-product.product_details")
+@TableName(value = "product_details")
 public class ProductDetails extends BaseEntity {
-    /**
-     * 商品id
-     */
+    private static final long serialVersionUID = 1L;
+
     @TableField(value = "product_id")
     @Schema(description = "商品id")
     private Long productId;
 
-    /**
-     * 详情图片地址
-     */
     @TableField(value = "image_urls")
     @Schema(description = "详情图片地址")
     private String imageUrls;

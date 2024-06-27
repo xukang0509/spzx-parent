@@ -34,4 +34,13 @@ public interface ProductSpecService extends IService<ProductSpec> {
      * @return 结果
      */
     int deleteProductSpecByIds(Long[] ids);
+
+
+    /**
+     * 根据分类ID获取商品规格列表
+     *
+     * @param categoryId 分类ID
+     * @return 商品规格集合
+     */
+    List<ProductSpec> selectProductSpecListByCategoryId(Long categoryId);
 }

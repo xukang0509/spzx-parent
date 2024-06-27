@@ -72,4 +72,10 @@ public class ProductUnitController extends BaseController {
     public AjaxResult remove(@PathVariable("ids") Long[] ids) {
         return toAjax(productUnitService.deleteProductUnitByIds(ids));
     }
+
+    @Operation(summary = "获取全部单元")
+    @GetMapping("/getUnitAll")
+    public AjaxResult getAllProductUnits() {
+        return success(productUnitService.list());
+    }
 }

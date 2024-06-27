@@ -29,4 +29,11 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="selectBrandListByCategoryId" resultType="com.spzx.product.domain.Brand">
+        select b.id, b.name, b.logo
+        from brand b
+        right join category_brand cb on b.id = cb.brand_id
+        where b.del_flag = 0 and cb.del_flag = 0 and cb.category_id = #{categoryId}
+    </select>
 </mapper>

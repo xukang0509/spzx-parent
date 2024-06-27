@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.security.utils.SecurityUtils;
+import com.spzx.product.domain.Brand;
 import com.spzx.product.domain.CategoryBrand;
 import com.spzx.product.mapper.CategoryBrandMapper;
 import com.spzx.product.service.CategoryBrandService;
@@ -110,5 +111,16 @@ public class CategoryBrandServiceImpl extends ServiceImpl<CategoryBrandMapper, C
     @Override
     public int deleteCategoryBrand(Long[] ids) {
         return categoryBrandMapper.deleteCategoryBrandByIds(ids, SecurityUtils.getUsername());
+    }
+
+    /**
+     * 根据分类ID获取品牌列表
+     *
+     * @param categoryId 分类ID
+     * @return 品牌列表
+     */
+    @Override
+    public List<Brand> selectBrandListByCategoryId(Long categoryId) {
+        return categoryBrandMapper.selectBrandListByCategoryId(categoryId);
     }
 }

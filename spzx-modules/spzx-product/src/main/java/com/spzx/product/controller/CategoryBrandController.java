@@ -56,4 +56,10 @@ public class CategoryBrandController extends BaseController {
     public AjaxResult delete(@PathVariable("ids") Long[] ids) {
         return toAjax(categoryBrandService.deleteCategoryBrand(ids));
     }
+
+    @Operation(summary = "根据分类ID获取品牌列表")
+    @GetMapping("/brandList/{categoryId}")
+    public AjaxResult getBrandListByCategoryId(@PathVariable("categoryId") Long categoryId) {
+        return success(categoryBrandService.selectBrandListByCategoryId(categoryId));
+    }
 }

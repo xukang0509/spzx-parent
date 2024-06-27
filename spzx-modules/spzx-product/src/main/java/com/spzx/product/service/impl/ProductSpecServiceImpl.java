@@ -1,5 +1,6 @@
 package com.spzx.product.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.ProductSpec;
@@ -41,5 +42,11 @@ public class ProductSpecServiceImpl extends ServiceImpl<ProductSpecMapper, Produ
     @Override
     public int deleteProductSpecByIds(Long[] ids) {
         return productSpecMapper.deleteProductSpecByIds(ids, SecurityUtils.getUsername());
+    }
+
+    @Override
+    public List<ProductSpec> selectProductSpecListByCategoryId(Long categoryId) {
+        return productSpecMapper.selectList(Wrappers.lambdaQuery(ProductSpec.class)
+                .eq(ProductSpec::getCategoryId, categoryId));
     }
 }
