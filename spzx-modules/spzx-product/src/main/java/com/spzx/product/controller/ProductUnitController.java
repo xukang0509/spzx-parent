@@ -30,7 +30,7 @@ public class ProductUnitController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo findPage(
             @Parameter(name = "pageNum", description = "当前页码", required = true)
-            @RequestParam(value = "pageNum", defaultValue = "0", required = true)
+            @RequestParam(value = "pageNum", defaultValue = "1", required = true)
             Integer pageNum,
             @Parameter(name = "pageSize", description = "每页记录数", required = true)
             @RequestParam(value = "pageSize", defaultValue = "10", required = true)

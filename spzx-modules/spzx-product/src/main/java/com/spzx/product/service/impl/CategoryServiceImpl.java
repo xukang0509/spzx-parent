@@ -25,7 +25,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         List<Category> categoryList = this.list(Wrappers.lambdaQuery(Category.class).eq(Category::getParentId, parentId));
         if (!CollectionUtils.isEmpty(categoryList)) {
             categoryList.forEach(category -> {
-                Long count = categoryMapper.selectCount(Wrappers.lambdaQuery(Category.class).eq(Category::getParentId, category.getId()));
+                Long count = categoryMapper.selectCount(Wrappers.lambdaQuery(Category.class)
+                        .eq(Category::getParentId, category.getId()));
                 if (count > 0) {
                     category.setHasChildren(true);
                 } else {

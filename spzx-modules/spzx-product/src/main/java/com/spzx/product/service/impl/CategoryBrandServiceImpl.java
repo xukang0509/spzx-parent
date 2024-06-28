@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 分类品牌业务层处理
@@ -50,6 +51,9 @@ public class CategoryBrandServiceImpl extends ServiceImpl<CategoryBrandMapper, C
     @Override
     public CategoryBrand selectCategoryBrandById(Long id) {
         CategoryBrand categoryBrand = categoryBrandMapper.selectById(id);
+        if (Objects.isNull(categoryBrand)) {
+            return null;
+        }
         List<Long> categoryIdList = categoryService.getAllCategoryIdList(categoryBrand.getCategoryId());
         categoryBrand.setCategoryIdList(categoryIdList);
         return categoryBrand;

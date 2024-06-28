@@ -9,9 +9,9 @@ import com.spzx.product.domain.ProductSku;
 import com.spzx.product.domain.SkuStock;
 import com.spzx.product.mapper.ProductDetailsMapper;
 import com.spzx.product.mapper.ProductMapper;
-import com.spzx.product.mapper.ProductSkuMapper;
 import com.spzx.product.mapper.SkuStockMapper;
 import com.spzx.product.service.ProductService;
+import com.spzx.product.service.ProductSkuService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     private ProductMapper productMapper;
 
     @Resource
-    private ProductSkuMapper productSkuMapper;
+    private ProductSkuService productSkuService;
 
     @Resource
     private SkuStockMapper skuStockMapper;
@@ -71,7 +71,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             productSku.setSkuCode(product.getId() + "_" + i);
             productSku.setProductId(product.getId());
             productSku.setSkuName(product.getName() + " " + productSku.getSkuSpec());
-            productSkuMapper.insert(productSku);
+            productSkuService.save(productSku);
 
             // 添加商品库存
             SkuStock skuStock = new SkuStock();
@@ -106,7 +106,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Product product = productMapper.selectById(id);
 
         // 2.根据 商品ID 获取 商品SKU集合
-        List<ProductSku> productSkuList = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
+        List<ProductSku> productSkuList = productSkuService.list(Wrappers.lambdaQuery(ProductSku.class)
                 .eq(ProductSku::getProductId, id));
         // 3.商品SKU集合中收集商品SKU主键ID集合
         List<Long> productSkuIds = productSkuList.stream().map(ProductSku::getId).toList();
@@ -151,7 +151,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
                 // 更新商品sku信息
                 productSku.setUpdateBy(username);
-                productSkuMapper.updateById(productSku);
+                productSkuService.updateById(productSku);
             });
         }
         // 更新商品详情信息
@@ -176,11 +176,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public int deleteProductsByIds(Long[] ids) {
         // 获取商品sku列表
-        List<ProductSku> productSkuList = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
+        List<ProductSku> productSkuList = productSkuService.list(Wrappers.lambdaQuery(ProductSku.class)
                 .in(ProductSku::getProductId, ids).select(ProductSku::getId));
         List<Long> skuIdList = productSkuList.stream().map(ProductSku::getId).toList();
         // 删除商品sku，条件：商品sku的商品id in (ids)
-        productSkuMapper.delete(Wrappers.lambdaQuery(ProductSku.class)
+        productSkuService.remove(Wrappers.lambdaQuery(ProductSku.class)
                 .in(ProductSku::getProductId, ids));
         // 删除sku库存，条件：sku库存的商品skuID in (skuIdList)
         skuStockMapper.delete(Wrappers.lambdaQuery(SkuStock.class)
@@ -220,6 +220,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @param id     商品主键ID
      * @param status 线上状态：0-初始值，1-上架，-1-自主下架
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateStatus(Long id, Integer status) {
         Product product = new Product();
@@ -229,6 +230,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         } else {
             product.setStatus(-1);
         }
+        productSkuService.update(Wrappers.lambdaUpdate(ProductSku.class)
+                .eq(ProductSku::getProductId, id)
+                .set(ProductSku::getStatus, product.getStatus())
+                .set(ProductSku::getUpdateBy, SecurityUtils.getUsername()));
         productMapper.updateById(product);
     }
 }
