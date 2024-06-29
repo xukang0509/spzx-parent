@@ -1,49 +1,42 @@
 import request from '@/utils/request';
 
-const baseURL = `/product/brand`;
+const baseURL = `/product/categoryBrand`;
 
-// 查询品牌列表
-export function getList(query) {
+// 查询分类品牌列表
+export function getCategoryBrandList(query) {
     return request({
         url: `${baseURL}/list`,
         method: 'GET',
         params: query
     })
 }
-// 查询品牌详情信息
-export function getInfo(id) {
+// 查询分类品牌信息
+export function getCategoryBrand(id) {
     return request({
         url: `${baseURL}/${id}`,
         method: 'GET'
     })
 }
-// 新增品牌
-export function addBrand(form) {
+// 新增分类品牌
+export function addCategoryBrand(form) {
     return request({
         url: baseURL,
         method: 'POST',
         data: form
     })
 }
-// 更新品牌
-export function updateBrand(form) {
+// 更新分类品牌
+export function updateCategoryBrand(form) {
     return request({
         url: baseURL,
         method: 'PUT',
         data: form
     })
 }
-// 删除品牌
-export function deleteBrand(id) {
+// 删除分类品牌
+export function deleteCategoryBrand(id) {
     return request({
         url: `${baseURL}/${id}`,
         method: 'DELETE'
-    })
-}
-// 获取全部品牌
-export function getBrandAll() {
-    return request({
-        url: `${baseURL}/getBrandAll`,
-        method: 'GET'
     })
 }

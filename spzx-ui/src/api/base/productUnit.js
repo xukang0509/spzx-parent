@@ -10,6 +10,7 @@ export function getProductUnitList(query) {
         params: query
     })
 }
+
 // 获取商品单位详情信息
 export function getInfoById(id) {
     return request({
@@ -17,6 +18,7 @@ export function getInfoById(id) {
         method: 'GET'
     })
 }
+
 // 新增商品单位
 export function addProductUnit(data) {
     return request({
@@ -25,6 +27,7 @@ export function addProductUnit(data) {
         data: data
     })
 }
+
 // 更新商品单位
 export function updateProductUnit(data) {
     return request({
@@ -33,6 +36,7 @@ export function updateProductUnit(data) {
         data: data
     })
 }
+
 // 删除商品单位
 export function removeProductUnit(ids) {
     return request({

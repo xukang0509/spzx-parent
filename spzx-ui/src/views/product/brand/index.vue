@@ -50,7 +50,7 @@
         @pagination="getBrandList"
     />
 
-    <!-- 新增或修改分类品牌对话框 -->
+    <!-- 新增或修改品牌对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="brandRef" :rules="rules" :model="form" label-width="80px">
         <el-form-item label="品牌名称" prop="name">
@@ -193,7 +193,7 @@ function submitForm() {
 // 删除按钮操作
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除分类品牌编号为"' + _ids + '"的数据项？').then(function () {
+  proxy.$modal.confirm('是否确认删除品牌编号为"' + _ids + '"的数据项？').then(function () {
     return deleteBrand(_ids);
   }).then(response => {
     getBrandList();

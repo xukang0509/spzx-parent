@@ -38,7 +38,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 新增或修改分类品牌对话框 -->
+    <!-- 新增或修改商品单位对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="productUnitRef" :rules="rules" :model="form" label-width="80px">
         <el-form-item label="单位名称" prop="name">

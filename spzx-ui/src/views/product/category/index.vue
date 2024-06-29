@@ -36,7 +36,9 @@
 import { treeSelect } from "@/api/product/category";
 import RightToolbar from "@/components/RightToolbar/index.vue";
 
+// 定义列表总记录数模型
 const categoryList = ref([]);
+// 加载数据时显示的动态控制模型
 const loading = ref(true);
 
 /* 查询商品分类列表 */
