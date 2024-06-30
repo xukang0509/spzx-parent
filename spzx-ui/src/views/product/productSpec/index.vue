@@ -225,7 +225,6 @@ function submitForm() {
 /* 取消表单操作 */
 function cancel() {
   open.value = false;
-  isAdd.value = false;
   resetForm();
 }
 
@@ -240,6 +239,7 @@ function resetForm() {
   };
   specValueList.value = [];
   specValue.value = {};
+  isAdd.value = false;
   proxy.resetForm("productSpecRef");
 }
 

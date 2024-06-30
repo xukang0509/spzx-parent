@@ -40,3 +40,10 @@ export function deleteProductSpec(id) {
         method: 'DELETE'
     })
 }
+// 根据分类ID获取商品规格列表
+export function getCategorySpecAll(categoryId) {
+    return request({
+        url: `${baseURL}/productSpecList/${categoryId}`,
+        method: 'GET'
+    })
+}

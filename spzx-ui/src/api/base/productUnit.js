@@ -44,3 +44,11 @@ export function removeProductUnit(ids) {
         method: 'DELETE'
     })
 }
+
+// 获取全部商品单元
+export function getProductUnitAll() {
+    return request({
+        url: `${baseURL}/getUnitAll`,
+        method: 'GET'
+    })
+}
