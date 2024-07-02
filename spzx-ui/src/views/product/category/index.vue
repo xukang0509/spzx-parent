@@ -2,10 +2,10 @@
   <div class="app-container">
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Upload" @click="handleImport">导入</el-button>
+        <el-button type="primary" plain icon="Upload" @click="handleImport" v-hasPermi="['product:category:import']">导入</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['product:category:export']">导出</el-button>
       </el-col>
       <right-toolbar @queryTable="getList(0)"></right-toolbar>
     </el-row>
@@ -52,8 +52,8 @@
               <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
             </div>-->
             <span>仅允许导入xls、xlsx、csv格式文件</span>
-          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
-              @click="importTemplate">下载模版</el-link>
+            <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+                @click="importTemplate">下载模版</el-link>
           </div>
         </template>
       </el-upload>

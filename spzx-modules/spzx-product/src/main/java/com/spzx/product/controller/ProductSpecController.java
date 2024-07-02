@@ -3,6 +3,7 @@ package com.spzx.product.controller;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.ProductSpec;
 import com.spzx.product.service.ProductSpecService;
@@ -27,6 +28,7 @@ public class ProductSpecController extends BaseController {
     @Resource
     private ProductSpecService productSpecService;
 
+    @RequiresPermissions("product:productSpec:list")
     @Operation(summary = "查询商品规格列表")
     @GetMapping("/list")
     public TableDataInfo pageList(ProductSpec productSpec) {
@@ -34,12 +36,14 @@ public class ProductSpecController extends BaseController {
         return getDataTable(productSpecService.selectProductSpecList(productSpec));
     }
 
+    @RequiresPermissions("product:productSpec:query")
     @Operation(summary = "获取商品规格详细信息")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(productSpecService.selectProductSpecById(id));
     }
 
+    @RequiresPermissions("product:productSpec:add")
     @Operation(summary = "新增商品规格")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated ProductSpec productSpec) {
@@ -51,6 +55,7 @@ public class ProductSpecController extends BaseController {
         return toAjax(productSpecService.save(productSpec));
     }
 
+    @RequiresPermissions("product:productSpec:edit")
     @Operation(summary = "修改商品规格")
     @PutMapping
     public AjaxResult edit(@RequestBody @Validated ProductSpec productSpec) {
@@ -59,6 +64,7 @@ public class ProductSpecController extends BaseController {
         return toAjax(productSpecService.updateById(productSpec));
     }
 
+    @RequiresPermissions("product:productSpec:remove")
     @Operation(summary = "删除商品规格")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids) {

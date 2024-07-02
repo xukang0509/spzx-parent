@@ -7,18 +7,20 @@
       </el-form-item>
       <el-form-item label="品牌">
         <el-select v-model="queryParams.brandId" class="m-2" placeholder="选择品牌" size="small" style="width: 100%">
-          <el-option v-for="item in brandList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in brandList" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>
       <el-form-item label="分类">
-        <el-select v-model="queryParams.category1Id" @change="selectCategory1" class="m-2" placeholder="一级分类" size="small" style="width: 32%; margin-right: 5px">
-          <el-option v-for="item in category1List" :key="item.id" :label="item.name" :value="item.id" />
+        <el-select v-model="queryParams.category1Id" @change="selectCategory1" class="m-2" placeholder="一级分类"
+                   size="small" style="width: 32%; margin-right: 5px">
+          <el-option v-for="item in category1List" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
-        <el-select v-model="queryParams.category2Id" @change="selectCategory2" class="m-2" placeholder="二级分类" size="small" style="width: 32%; margin-right: 5px">
-          <el-option v-for="item in category2List" :key="item.id" :label="item.name" :value="item.id" />
+        <el-select v-model="queryParams.category2Id" @change="selectCategory2" class="m-2" placeholder="二级分类"
+                   size="small" style="width: 32%; margin-right: 5px">
+          <el-option v-for="item in category2List" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
         <el-select v-model="queryParams.category3Id" class="m-2" placeholder="三级分类" size="small" style="width: 32%">
-          <el-option v-for="item in category3List" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in category3List" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -30,30 +32,35 @@
     <!-- 功能按钮栏 -->
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+        <el-button type="primary" plain icon="Plus" v-hasPermi="['product:product:add']" @click="handleAdd">新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" v-hasPermi="['product:productSpec:edit']"
+                   @click="handleUpdate">修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" v-hasPermi="['product:productSpec:remove']"
+                   @click="handleDelete">删除
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <!-- 数据展示表格 -->
     <el-table v-model="loading" :data="productList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="ID" prop="id" width="60"/>
       <el-table-column label="轮播图" width="200" #default="scope">
         <div style="height: 50px;float: left;">
-          <img v-for="(item, index) in scope.row.sliderUrlList" :key="index" :src="item" width="50" />
+          <img v-for="(item, index) in scope.row.sliderUrlList" :key="index" :src="item" width="50"/>
         </div>
       </el-table-column>
       <el-table-column label="商品名称" prop="name" width="160"/>
-      <el-table-column label="品牌" prop="brandName" />
-      <el-table-column label="一级分类" prop="category1Name" />
-      <el-table-column label="二级分类" prop="category2Name" />
+      <el-table-column label="品牌" prop="brandName"/>
+      <el-table-column label="一级分类" prop="category1Name"/>
+      <el-table-column label="二级分类" prop="category2Name"/>
       <el-table-column label="三级分类" prop="category3Name"/>
       <el-table-column label="计量单位" prop="unitName"/>
       <el-table-column label="状态" prop="status" #default="scope">
@@ -64,12 +71,14 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="250">
         <template #default="scope">
-          <el-button v-if="scope.row.auditStatus == 0" link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button v-if="scope.row.auditStatus == 0" link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button v-if="scope.row.auditStatus == 0" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                     v-hasPermi="['product:productSpec:edit']">修改</el-button>
+          <el-button v-if="scope.row.auditStatus == 0" link type="primary" icon="Delete"
+                     @click="handleDelete(scope.row)" v-hasPermi="['product:productSpec:remove']">删除</el-button>
           <el-button v-if="scope.row.auditStatus == 0" link type="success" @click="handleAudit(scope.row.id, 1)">通过</el-button>
           <el-button v-if="scope.row.auditStatus == 0" link type="success" @click="handleAudit(scope.row.id, -1)">驳回</el-button>
           <el-button v-if="scope.row.auditStatus == 1 && (scope.row.status == 0 || scope.row.status == -1)"
-                     link type="primary"  @click="handleUpdateStatus(scope.row.id, 1)">上架</el-button>
+                     link type="primary" @click="handleUpdateStatus(scope.row.id, 1)">上架</el-button>
           <el-button v-if="scope.row.auditStatus == 1 && scope.row.status == 1"
                      link type="primary" plain @click="handleUpdateStatus(scope.row.id, -1)">下架</el-button>
         </template>
@@ -80,27 +89,27 @@
     <!-- 添加或修改商品对话框 -->
     <el-dialog :title="title" v-model="open" width="60%" append-to-body>
       <el-steps :active="activeIndex" finish-status="success">
-        <el-step title="Step 1" description="商品基本信息" />
-        <el-step title="Step 2" description="商品SKU信息" />
-        <el-step title="Step 3" description="商品详情信息" />
+        <el-step title="Step 1" description="商品基本信息"/>
+        <el-step title="Step 2" description="商品SKU信息"/>
+        <el-step title="Step 3" description="商品详情信息"/>
       </el-steps>
       <el-form ref="productRef" :model="form" :rules="rules" label-width="80px" style="margin-top: 20px">
         <el-divider/>
         <div v-if="activeIndex == 0">
           <el-form-item label="商品名称" prop="name">
-            <el-input v-model="form.name" />
+            <el-input v-model="form.name"/>
           </el-form-item>
           <el-form-item label="分类" prop="category3Id">
             <el-cascader :props="categoryProps" v-model="categoryIdList" @change="handleCategoryChange"/>
           </el-form-item>
           <el-form-item label="品牌" prop="brandId">
             <el-select v-model="form.brandId" class="m-2" placeholder="选择品牌">
-              <el-option v-for="item in categoryBrandList" :key="item.id" :label="item.name" :value="item.id" />
+              <el-option v-for="item in categoryBrandList" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
           <el-form-item label="计量单位" prop="unitName">
             <el-select v-model="form.unitName" class="m-2" placeholder="计量单位">
-              <el-option v-for="item in productUnitList" :key="item.id" :label="item.name" :value="item.id" />
+              <el-option v-for="item in productUnitList" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderUrlList">
@@ -113,47 +122,52 @@
                 :on-success="handleAvatarSuccess"
                 :on-remove="handleRemove"
             >
-              <el-icon><Plus/></el-icon>
+              <el-icon>
+                <Plus/>
+              </el-icon>
             </el-upload>
           </el-form-item>
         </div>
         <div v-if="activeIndex == 1">
           <el-form-item label="选择规格">
-            <el-select :disabled="form.id != null" v-model="form.specValue" class="m-2" placeholder="选择规格" size="default" @change="handleSpecValueChange">
-              <el-option v-for="item in specList" :key="item.specValue" :label="item.specName" :value="item.specValue" />
+            <el-select :disabled="form.id != null" v-model="form.specValue" class="m-2" placeholder="选择规格"
+                       size="default" @change="handleSpecValueChange">
+              <el-option v-for="item in specList" :key="item.specValue" :label="item.specName" :value="item.specValue"/>
             </el-select>
           </el-form-item>
           <el-form-item label="商品SKU">
             <el-table :data="form.productSkuList" border style="width: 100%">
-              <el-table-column prop="skuSpec" label="规格" width="180" />
+              <el-table-column prop="skuSpec" label="规格" width="180"/>
               <el-table-column label="图片" #default="scope" width="80">
-                  <el-upload
-                      class="avatar-uploader"
-                      :action="imgUpload.url"
-                      :headers="imgUpload.headers"
-                      :show-file-list="false"
-                      :on-success="(response, uploadFile, fileList) =>handleSkuSuccess(response, uploadFile, fileList, scope.row)">
-                    <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" width="60" />
-                    <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-                  </el-upload>
+                <el-upload
+                    class="avatar-uploader"
+                    :action="imgUpload.url"
+                    :headers="imgUpload.headers"
+                    :show-file-list="false"
+                    :on-success="(response, uploadFile, fileList) =>handleSkuSuccess(response, uploadFile, fileList, scope.row)">
+                  <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" width="60"/>
+                  <el-icon v-else class="avatar-uploader-icon">
+                    <Plus/>
+                  </el-icon>
+                </el-upload>
               </el-table-column>
               <el-table-column label="售价" #default="scope">
-                <el-input v-model="scope.row.salePrice" />
+                <el-input v-model="scope.row.salePrice"/>
               </el-table-column>
               <el-table-column label="市场价" #default="scope">
-                <el-input v-model="scope.row.marketPrice" />
+                <el-input v-model="scope.row.marketPrice"/>
               </el-table-column>
               <el-table-column label="成本价" #default="scope">
-                <el-input v-model="scope.row.costPrice" />
+                <el-input v-model="scope.row.costPrice"/>
               </el-table-column>
               <el-table-column label="库存数" #default="scope">
-                <el-input v-model="scope.row.stockNum" />
+                <el-input v-model="scope.row.stockNum"/>
               </el-table-column>
               <el-table-column label="重量" #default="scope">
-                <el-input v-model="scope.row.weight" />
+                <el-input v-model="scope.row.weight"/>
               </el-table-column>
               <el-table-column label="体积" #default="scope">
-                <el-input v-model="scope.row.volume" />
+                <el-input v-model="scope.row.volume"/>
               </el-table-column>
             </el-table>
           </el-form-item>
@@ -169,7 +183,9 @@
                 :on-success="handleDetailsSuccess"
                 :on-remove="handleDetailsRemove"
             >
-              <el-icon><Plus /></el-icon>
+              <el-icon>
+                <Plus/>
+              </el-icon>
             </el-upload>
           </el-form-item>
         </div>
@@ -180,7 +196,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button type="danger" @click="submitForm(-1)" :disabled="activeIndex == 0">上一步</el-button>
-          <el-button type="primary" @click="submitForm(1)">{{ activeIndex < 2  ? '下一步' : '提交' }}</el-button>
+          <el-button type="primary" @click="submitForm(1)">{{ activeIndex < 2 ? '下一步' : '提交' }}</el-button>
           <el-button @click="cancel">取消</el-button>
         </div>
       </template>
@@ -200,7 +216,15 @@
 <script setup name="Product">
 import {getBrandAll} from "@/api/product/brand.js";
 import {treeSelect} from "@/api/product/category.js";
-import {getProductList, updateAuditStatus, updateStatus, addProduct, updateProduct, getProduct, deleteProduct} from "@/api/product/product.js";
+import {
+  getProductList,
+  updateAuditStatus,
+  updateStatus,
+  addProduct,
+  updateProduct,
+  getProduct,
+  deleteProduct
+} from "@/api/product/product.js";
 import {getProductUnitAll} from "@/api/base/productUnit.js";
 import {getToken} from "@/utils/auth.js";
 import {getCategorySpecAll} from "@/api/product/productSpec.js";
@@ -251,26 +275,26 @@ const data = reactive({
   form: {},
   rules: {
     name: [
-      { required: true, message: "商品名称不能为空", trigger: "change" }
+      {required: true, message: "商品名称不能为空", trigger: "change"}
     ],
     category3Id: [
-      { required: true, message: "商品分类不能为空", trigger: "change" }
+      {required: true, message: "商品分类不能为空", trigger: "change"}
     ],
     brandId: [
-      { required: true, message: "品牌不能为空", trigger: "change" }
+      {required: true, message: "品牌不能为空", trigger: "change"}
     ],
     unitName: [
-      { required: true, message: "商品单位不能为空", trigger: "change" }
+      {required: true, message: "商品单位不能为空", trigger: "change"}
     ],
     sliderUrlList: [
-      { required: true, message: "轮播图不能为空", trigger: "change" }
+      {required: true, message: "轮播图不能为空", trigger: "change"}
     ]
   }
 });
 const {queryParams, form, rules, imgUpload} = toRefs(data);
 
 /* 查询商品列表 */
-function getList(){
+function getList() {
   loading.value = true;
   getProductList(queryParams.value).then(response => {
     productList.value = response.rows;
@@ -300,9 +324,9 @@ function handleUpdate(row) {
 
     // 分类赋值
     categoryIdList.value = [
-        form.value.category1Id,
-        form.value.category2Id,
-        form.value.category3Id
+      form.value.category1Id,
+      form.value.category2Id,
+      form.value.category3Id
     ]
     // 轮播图赋值
     form.value.sliderUrlList = form.value.sliderUrls.split(',');
@@ -311,7 +335,7 @@ function handleUpdate(row) {
     })
     // 处理详情图片
     form.value.detailsImageUrlList.forEach(url => {
-      detailsImageTempUrlList.value.push({ url: url })
+      detailsImageTempUrlList.value.push({url: url})
     })
     // 加载分类品牌
     getCategoryBrand()
@@ -365,6 +389,7 @@ function handleQuery() {
   queryParams.value.pageNum = 1;
   getList();
 }
+
 function resetQuery() {
   proxy.resetForm("queryRef");
   category2List.value = [];
@@ -384,8 +409,10 @@ function handleAudit(id, auditStatus) {
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("操作成功");
-  }).catch(()=>{});
+  }).catch(() => {
+  });
 }
+
 function handleUpdateStatus(id, status) {
   const msg = status == 1 ? '是否确认上架商品编号为"' + id + '"的数据项？' : '是否确认下架商品编号为"' + id + '"的数据项？'
   proxy.$modal.confirm(msg).then(() => {
@@ -393,7 +420,8 @@ function handleUpdateStatus(id, status) {
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("操作成功");
-  }).catch(()=>{});
+  }).catch(() => {
+  });
 }
 
 /* 多选框按钮处理 */
@@ -405,6 +433,7 @@ function handleSelectionChange(selection) {
 
 /* 上传商品轮播图图片 */
 const sliderTempUrlList = ref([]);
+
 function handleAvatarSuccess(response, uploadFile) {
   if (response.code == 200) {
     form.value.sliderUrlList.push(response.data.url);
@@ -416,6 +445,7 @@ function handleAvatarSuccess(response, uploadFile) {
     proxy.$modal.msgError(response.msg);
   }
 }
+
 function handleRemove(uploadFile, uploadFiles) {
   console.log('------handleRemove start--------')
   console.log(uploadFile, uploadFiles);
@@ -486,6 +516,7 @@ const handleSkuSuccess = (response, uploadFile, fileList, row) => {
 
 /* 根据分类ID加载商品规格 */
 const specList = ref([]);
+
 function getCategorySpec() {
   if (form.value.category3Id == '') {
     proxy.$modal.msgError("请选择分类");
@@ -503,12 +534,13 @@ const getCategoryBrand = async () => {
     proxy.$modal.msgError("请选择分类");
     return
   }
-  const { data } = await getBrandListByCategoryId(form.value.category3Id)
+  const {data} = await getBrandListByCategoryId(form.value.category3Id)
   categoryBrandList.value = data
 }
 
 /* 选择器---加载所有品牌 */
 const brandList = ref([])
+
 function getBrandAllList() {
   getBrandAll().then(response => {
     brandList.value = response.data
@@ -517,6 +549,7 @@ function getBrandAllList() {
 
 /* 选择器---加载商品单位 */
 const productUnitList = ref([])
+
 function getProductUnitList() {
   getProductUnitAll().then(response => {
     productUnitList.value = response.data
@@ -527,21 +560,24 @@ function getProductUnitList() {
 const category1List = ref([]);
 const category2List = ref([]);
 const category3List = ref([]);
+
 async function getTreeSelectCategoryList(parentId, level) {
   const {data} = await treeSelect(parentId);
   if (level == 1) {
     category1List.value = data;
   } else if (level == 2) {
     category2List.value = data;
-  } else if (level == 3){
+  } else if (level == 3) {
     category3List.value = data;
   }
 }
+
 function selectCategory1() {
   category2List.value = [];
   category3List.value = [];
   getTreeSelectCategoryList(queryParams.value.category1Id, 2);
 }
+
 function selectCategory2() {
   category3List.value = [];
   getTreeSelectCategoryList(queryParams.value.category2Id, 3);
@@ -626,7 +662,7 @@ onMounted(() => {
   getList();
   getBrandAllList();
   getProductUnitList();
-  getTreeSelectCategoryList(0,1);
+  getTreeSelectCategoryList(0, 1);
 })
 </script>
 

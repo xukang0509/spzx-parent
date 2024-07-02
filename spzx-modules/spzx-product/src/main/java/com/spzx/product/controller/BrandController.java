@@ -3,6 +3,7 @@ package com.spzx.product.controller;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.Brand;
 import com.spzx.product.service.BrandService;
@@ -24,6 +25,7 @@ public class BrandController extends BaseController {
     @Resource
     private BrandService brandService;
 
+    @RequiresPermissions("product:brand:list")
     @Operation(summary = "查询品牌列表")
     @GetMapping("/list")
     public TableDataInfo list(Brand brand) {
@@ -32,12 +34,14 @@ public class BrandController extends BaseController {
         return getDataTable(list);
     }
 
+    @RequiresPermissions("product:brand:query")
     @Operation(summary = "获取品牌详细信息")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(brandService.selectBrandById(id));
     }
 
+    @RequiresPermissions("product:brand:add")
     @Operation(summary = "新增品牌")
     @PostMapping
     public AjaxResult addBrand(@RequestBody @Validated Brand brand) {
@@ -49,6 +53,7 @@ public class BrandController extends BaseController {
         return toAjax(brandService.insertBrand(brand));
     }
 
+    @RequiresPermissions("product:brand:edit")
     @Operation(summary = "修改品牌")
     @PutMapping
     public AjaxResult editBrand(@RequestBody @Validated Brand brand) {
@@ -59,12 +64,14 @@ public class BrandController extends BaseController {
         return toAjax(brandService.updateBrand(brand));
     }
 
+    @RequiresPermissions("product:brand:remove")
     @Operation(summary = "删除品牌")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids) {
         return toAjax(brandService.deleteBrandByIds(ids));
     }
 
+    @RequiresPermissions("product:brand:query")
     @Operation(summary = "获取所有品牌列表")
     @GetMapping("/getBrandAll")
     public AjaxResult getBrandAll() {

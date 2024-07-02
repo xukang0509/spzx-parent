@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.domain.ProductUnit;
 import com.spzx.product.service.ProductUnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +27,7 @@ public class ProductUnitController extends BaseController {
     @Resource
     private ProductUnitService productUnitService;
 
+    @RequiresPermissions("base:productUnit:list")
     @Operation(summary = "获取分页列表")
     @GetMapping("/list")
     public TableDataInfo findPage(
@@ -43,12 +45,14 @@ public class ProductUnitController extends BaseController {
         return getDataTable(iPage);
     }
 
+    @RequiresPermissions("base:productUnit:query")
     @Operation(summary = "获取商品单位详细信息")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(productUnitService.selectProductUnitById(id));
     }
 
+    @RequiresPermissions("base:productUnit:add")
     @Operation(summary = "新增商品单位")
     @PostMapping
     public AjaxResult add(@RequestBody @Validated ProductUnit productUnit) {
@@ -58,6 +62,7 @@ public class ProductUnitController extends BaseController {
         return toAjax(productUnitService.insertProductUnit(productUnit));
     }
 
+    @RequiresPermissions("base:productUnit:edit")
     @Operation(summary = "修改商品单位")
     @PutMapping
     public AjaxResult edit(@RequestBody @Validated ProductUnit productUnit) {
@@ -67,12 +72,14 @@ public class ProductUnitController extends BaseController {
         return toAjax(productUnitService.updateProductUnit(productUnit));
     }
 
+    @RequiresPermissions("base:productUnit:remove")
     @Operation(summary = "删除商品单位")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids) {
         return toAjax(productUnitService.deleteProductUnitByIds(ids));
     }
 
+    @RequiresPermissions("base:productUnit:query")
     @Operation(summary = "获取全部单元")
     @GetMapping("/getUnitAll")
     public AjaxResult getAllProductUnits() {

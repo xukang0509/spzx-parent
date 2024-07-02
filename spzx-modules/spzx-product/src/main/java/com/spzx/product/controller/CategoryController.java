@@ -2,6 +2,7 @@ package com.spzx.product.controller;
 
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
+import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,18 +23,21 @@ public class CategoryController extends BaseController {
     @Resource
     private CategoryService categoryService;
 
+    @RequiresPermissions("product:category:list")
     @Operation(summary = "获取商品分类下拉树列表")
     @GetMapping("/treeSelect/{id}")
     public AjaxResult treeSelect(@PathVariable("id") Long id) {
         return success(categoryService.treeSelect(id));
     }
 
+    @RequiresPermissions("product:category:export")
     @Operation(summary = "商品分类导出")
     @PostMapping("/export")
     public void export(HttpServletResponse response) {
         categoryService.exportCategory(response);
     }
 
+    @RequiresPermissions("product:category:import")
     @Operation(summary = "商品分类导入")
     @PostMapping("/import")
     public AjaxResult importData(@RequestParam MultipartFile file) {
