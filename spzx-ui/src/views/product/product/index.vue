@@ -12,13 +12,13 @@
       </el-form-item>
       <el-form-item label="分类">
         <el-select v-model="queryParams.category1Id" @change="selectCategory1" class="m-2" placeholder="一级分类" size="small" style="width: 32%; margin-right: 5px">
-          <el-option v-for="item in category1IdList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in category1List" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <el-select v-model="queryParams.category2Id" @change="selectCategory2" class="m-2" placeholder="二级分类" size="small" style="width: 32%; margin-right: 5px">
-          <el-option v-for="item in category2IdList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in category2List" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <el-select v-model="queryParams.category3Id" class="m-2" placeholder="三级分类" size="small" style="width: 32%">
-          <el-option v-for="item in category3IdList" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in category3List" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -125,11 +125,65 @@
           </el-form-item>
           <el-form-item label="商品SKU">
             <el-table :data="form.productSkuList" border style="width: 100%">
-
+              <el-table-column prop="skuSpec" label="规格" width="180" />
+              <el-table-column label="图片" #default="scope" width="80">
+                  <el-upload
+                      class="avatar-uploader"
+                      :action="imgUpload.url"
+                      :headers="imgUpload.headers"
+                      :show-file-list="false"
+                      :on-success="(response, uploadFile, fileList) =>handleSkuSuccess(response, uploadFile, fileList, scope.row)">
+                    <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" width="50" />
+                    <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+                  </el-upload>
+              </el-table-column>
+              <el-table-column label="售价" #default="scope">
+                <el-input v-model="scope.row.salePrice" />
+              </el-table-column>
+              <el-table-column label="市场价" #default="scope">
+                <el-input v-model="scope.row.marketPrice" />
+              </el-table-column>
+              <el-table-column label="成本价" #default="scope">
+                <el-input v-model="scope.row.costPrice" />
+              </el-table-column>
+              <el-table-column label="库存数" #default="scope">
+                <el-input v-model="scope.row.stockNum" />
+              </el-table-column>
+              <el-table-column label="重量" #default="scope">
+                <el-input v-model="scope.row.weight" />
+              </el-table-column>
+              <el-table-column label="体积" #default="scope">
+                <el-input v-model="scope.row.volume" />
+              </el-table-column>
             </el-table>
           </el-form-item>
         </div>
+        <div v-if="activeIndex == 2">
+          <el-form-item label="详情图片">
+            <el-upload
+                v-model:file-list="detailsImageTempUrlList"
+                :action="imgUpload.url"
+                :headers="imgUpload.headers"
+                list-type="picture-card"
+                multiple
+                :on-success="handleDetailsSuccess"
+                :on-remove="handleDetailsRemove"
+            >
+              <el-icon><Plus /></el-icon>
+            </el-upload>
+          </el-form-item>
+        </div>
+        <div v-if="activeIndex == 3">
+          <div style="font-size: large;margin: 30px 30px;">提交成功</div>
+        </div>
       </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="danger" @click="submitForm(-1)" :disabled="activeIndex == 0">上一步</el-button>
+          <el-button type="primary" @click="submitForm(1)">{{ activeIndex < 2  ? '下一步' : '提交' }}</el-button>
+          <el-button @click="cancel">取消</el-button>
+        </div>
+      </template>
     </el-dialog>
 
     <!-- 分页组件 -->
@@ -146,10 +200,11 @@
 <script setup name="Product">
 import {getBrandAll} from "@/api/product/brand.js";
 import {treeSelect} from "@/api/product/category.js";
-import {getProductList, updateAuditStatus, updateStatus} from "@/api/product/product.js";
+import {getProductList, updateAuditStatus, updateStatus, addProduct, updateProduct, getProduct, deleteProduct} from "@/api/product/product.js";
 import {getProductUnitAll} from "@/api/base/productUnit.js";
 import {getToken} from "@/utils/auth.js";
 import {getCategorySpecAll} from "@/api/product/productSpec.js";
+import {getBrandListByCategoryId} from "@/api/product/categoryBrand.js";
 
 const {proxy} = getCurrentInstance();
 
@@ -234,8 +289,57 @@ function handleAdd() {
   title.value = "新增商品";
 }
 
+/* 更新按钮操作 */
+function handleUpdate(row) {
+  reset();
+  const _id = row.id || ids.value;
+  getProduct(_id).then(response => {
+    form.value = response.data;
+    open.value = true;
+    title.value = "更新商品";
+
+    // 分类赋值
+    categoryIdList.value = [
+        form.value.category1Id,
+        form.value.category2Id,
+        form.value.category3Id
+    ]
+    // 轮播图赋值
+    form.value.sliderUrlList = form.value.sliderUrls.split(',');
+    form.value.sliderUrlList.forEach(url => {
+      sliderTempUrlList.value.push({url: url});
+    })
+    // 处理详情图片
+    form.value.detailsImageUrlList.forEach(url => {
+      detailsImageTempUrlList.value.push({ url: url })
+    })
+    // 加载分类品牌
+    getCategoryBrand()
+    // 加载分类规格
+    getCategorySpec()
+  })
+}
+
+/* 删除按钮操作 */
+function handleDelete(row) {
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除商品编号为"' + _ids + '"的数据项？').then(function () {
+    return deleteProduct(_ids);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("删除成功");
+  }).catch(() => {
+  });
+}
+
 /* 表单重置 */
 function reset() {
+  activeIndex.value = 0;
+  sliderTempUrlList.value = [];
+  detailsImageTempUrlList.value = [];
+  categoryIdList.value = [];
+  categoryBrandList.value = [];
+  specList.value = [];
   form.value = {
     id: null,
     name: null,
@@ -263,8 +367,8 @@ function handleQuery() {
 }
 function resetQuery() {
   proxy.resetForm("queryRef");
-  category2IdList.value = [];
-  category3IdList.value = [];
+  category2List.value = [];
+  category3List.value = [];
   queryParams.value.category1Id = null;
   queryParams.value.category2Id = null;
   queryParams.value.category3Id = null;
@@ -320,9 +424,64 @@ function handleRemove(uploadFile, uploadFiles) {
   console.log('------handleRemove end--------')
 }
 
+// 上传商品详情图片
+const detailsImageTempUrlList = ref([])
+const handleDetailsRemove = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles)
+  form.value.detailsImageUrlList.splice(
+      form.value.detailsImageUrlList.indexOf(uploadFile.url),
+      1
+  )
+  console.log(form.value.detailsImageUrlList)
+}
+const handleDetailsSuccess = (response, uploadFile) => {
+  console.log(response)
+  form.value.detailsImageUrlList.push(response.data.url)
+  console.log(form.value.detailsImageUrlList)
+}
+
 /* 规格变化，商品规格sku变化处理，取规格属性值，笛卡尔积生成sku */
 function handleSpecValueChange() {
+  form.value.productSkuList = []
+  let specValueList = JSON.parse(form.value.specValue);
+  console.log(specValueList);
 
+  let array = [];
+  specValueList.forEach(item => {
+    let res = []
+    item.valueList.map(x => {
+      res.push(x)
+    })
+    array.push(res);
+  })
+  // 取数组的笛卡尔积
+  let result = array.reduce(
+      (a, b, c) => {
+        let res = []
+        a.map(x => {
+          b.map(y => {
+            res.push([...x, y])
+          })
+        })
+        return res;
+      },
+      [[]]
+  )
+  console.log(result)
+  result.forEach(item => {
+    form.value.productSkuList.push({
+      skuSpec: item.join(' + '),
+      skuSpecList: item,
+      price: 0,
+    })
+  })
+}
+
+//sku图片
+const handleSkuSuccess = (response, uploadFile, fileList, row) => {
+  console.log(response)
+  console.log(uploadFile)
+  row.thumbImg = response.data.url;
 }
 
 /* 根据分类ID加载商品规格 */
@@ -344,7 +503,7 @@ const getCategoryBrand = async () => {
     proxy.$modal.msgError("请选择分类");
     return
   }
-  const { data } = await getCategoryBrandAll(form.value.category3Id)
+  const { data } = await getBrandListByCategoryId(form.value.category3Id)
   categoryBrandList.value = data
 }
 
@@ -365,26 +524,26 @@ function getProductUnitList() {
 }
 
 /* 级联分类选择器处理 */
-const category1IdList = ref([]);
-const category2IdList = ref([]);
-const category3IdList = ref([]);
+const category1List = ref([]);
+const category2List = ref([]);
+const category3List = ref([]);
 async function getTreeSelectCategoryList(parentId, level) {
   const {data} = await treeSelect(parentId);
   if (level == 1) {
-    category1IdList.value = data;
+    category1List.value = data;
   } else if (level == 2) {
-    category2IdList.value = data;
+    category2List.value = data;
   } else if (level == 3){
-    category3IdList.value = data;
+    category3List.value = data;
   }
 }
 function selectCategory1() {
-  category2IdList.value = [];
-  category3IdList.value = [];
+  category2List.value = [];
+  category3List.value = [];
   getTreeSelectCategoryList(queryParams.value.category1Id, 2);
 }
 function selectCategory2() {
-  category3IdList.value = [];
+  category3List.value = [];
   getTreeSelectCategoryList(queryParams.value.category2Id, 3);
 }
 
@@ -405,17 +564,62 @@ const props = {
   }
 };
 const categoryProps = ref(props);
-const categoryIdList = ref([]);
 // 处理分类change事件
+const categoryIdList = ref([]);
 const handleCategoryChange = () => {
   if (categoryIdList.value.length == 3) {
     form.value.category1Id = categoryIdList.value[0]
     form.value.category2Id = categoryIdList.value[1]
     form.value.category3Id = categoryIdList.value[2]
-    getCategoryBrand()
-    getCategorySpec()
+    form.value.specValue = null;
+    form.value.productSkuList = [];
+    getCategoryBrand();
+    getCategorySpec();
   }
   console.log(categoryIdList.value)
+}
+
+/* 提交按钮 */
+function submitForm(index) {
+  proxy.$refs["productRef"].validate(valid => {
+    if (valid) {
+      activeIndex.value = activeIndex.value + index;
+      //轮播图临时地址重新赋值，否则新上传的图片不显示
+      sliderTempUrlList.value = [];
+      form.value.sliderUrlList.forEach(url => {
+        sliderTempUrlList.value.push({url: url});
+      })
+
+      //详情图片临时地址重新赋值，否则新上传的图片不显示
+      detailsImageTempUrlList.value = []
+      form.value.detailsImageUrlList.forEach(url => {
+        detailsImageTempUrlList.value.push({url: url})
+      })
+
+      if (activeIndex.value == 3) {
+        form.value.sliderUrls = form.value.sliderUrlList.join(',')
+        if (form.value.id != null) {
+          updateProduct(form.value).then(response => {
+            proxy.$modal.msgSuccess("修改成功");
+            open.value = false;
+            getList();
+          });
+        } else {
+          addProduct(form.value).then(response => {
+            proxy.$modal.msgSuccess("新增成功");
+            open.value = false;
+            getList();
+          });
+        }
+      }
+    }
+  });
+}
+
+/* 取消表单按钮 */
+function cancel() {
+  open.value = false;
+  reset();
 }
 
 onMounted(() => {
@@ -427,5 +631,26 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+  width: 70px;
+  height: 70px;
+}
 
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+}
 </style>

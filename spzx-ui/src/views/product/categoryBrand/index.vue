@@ -200,6 +200,7 @@ function resetForm() {
     categoryId: null,
     categoryIdList: []
   };
+  queryCategoryIdList.value = [];
   proxy.resetForm("categoryBrandRef");
 }
 
