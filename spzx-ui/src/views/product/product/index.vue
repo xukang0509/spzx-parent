@@ -45,7 +45,7 @@
     <el-table v-model="loading" :data="productList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" prop="id" width="60"/>
-      <el-table-column label="轮播图" prop="sliderUrls" width="200" #default="scope">
+      <el-table-column label="轮播图" width="200" #default="scope">
         <div style="height: 50px;float: left;">
           <img v-for="(item, index) in scope.row.sliderUrlList" :key="index" :src="item" width="50" />
         </div>
@@ -133,7 +133,7 @@
                       :headers="imgUpload.headers"
                       :show-file-list="false"
                       :on-success="(response, uploadFile, fileList) =>handleSkuSuccess(response, uploadFile, fileList, scope.row)">
-                    <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" width="50" />
+                    <img v-if="scope.row.thumbImg" :src="scope.row.thumbImg" class="avatar" width="60" />
                     <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                   </el-upload>
               </el-table-column>
@@ -472,7 +472,7 @@ function handleSpecValueChange() {
     form.value.productSkuList.push({
       skuSpec: item.join(' + '),
       skuSpecList: item,
-      price: 0,
+      price: 0
     })
   })
 }

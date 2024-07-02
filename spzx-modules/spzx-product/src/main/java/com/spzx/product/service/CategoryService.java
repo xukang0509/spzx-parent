@@ -2,6 +2,8 @@ package com.spzx.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.spzx.product.domain.Category;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,4 +28,18 @@ public interface CategoryService extends IService<Category> {
      * @return
      */
     List<Long> getAllCategoryIdList(Long id);
+
+    /**
+     * 商品分类导出
+     *
+     * @param response 响应报文
+     */
+    void exportCategory(HttpServletResponse response);
+
+    /**
+     * 商品分类导入
+     *
+     * @param file 文件
+     */
+    void importCategory(MultipartFile file);
 }

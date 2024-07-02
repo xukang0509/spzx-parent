@@ -6,10 +6,9 @@ import com.spzx.product.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 商品分类Controller
@@ -27,5 +26,23 @@ public class CategoryController extends BaseController {
     @GetMapping("/treeSelect/{id}")
     public AjaxResult treeSelect(@PathVariable("id") Long id) {
         return success(categoryService.treeSelect(id));
+    }
+
+    @Operation(summary = "商品分类导出")
+    @PostMapping("/export")
+    public void export(HttpServletResponse response) {
+        categoryService.exportCategory(response);
+    }
+
+    @Operation(summary = "商品分类导入")
+    @PostMapping("/import")
+    public AjaxResult importData(MultipartFile file) {
+        try {
+            categoryService.importCategory(file);
+            return success("导入成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return error("导入失败");
     }
 }
