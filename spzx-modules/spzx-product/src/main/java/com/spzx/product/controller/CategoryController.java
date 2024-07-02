@@ -36,7 +36,7 @@ public class CategoryController extends BaseController {
 
     @Operation(summary = "商品分类导入")
     @PostMapping("/import")
-    public AjaxResult importData(MultipartFile file) {
+    public AjaxResult importData(@RequestParam MultipartFile file) {
         try {
             categoryService.importCategory(file);
             return success("导入成功");
@@ -44,5 +44,11 @@ public class CategoryController extends BaseController {
             e.printStackTrace();
         }
         return error("导入失败");
+    }
+
+    @Operation(summary = "下载模版")
+    @PostMapping("/importTemplate")
+    public void downloadTemplate(HttpServletResponse response) {
+        categoryService.downloadTemplate(response);
     }
 }

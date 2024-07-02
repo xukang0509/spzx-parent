@@ -1,11 +1,13 @@
 package com.spzx.product.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.spzx.common.security.utils.SecurityUtils;
+import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.domain.Category;
+import com.spzx.product.handler.CategoryExcelListener;
 import com.spzx.product.mapper.CategoryMapper;
 import com.spzx.product.service.CategoryService;
 import com.spzx.product.vo.CategoryExcelVo;
@@ -16,9 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,21 +79,51 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public void importCategory(MultipartFile file) {
         // 使用EasyExcel导入数据
         try {
-            List<CategoryExcelVo> categoryExcelVoList = EasyExcel.read(file.getInputStream()).head(CategoryExcelVo.class).sheet().doReadSync();
-            if (!CollectionUtils.isEmpty(categoryExcelVoList)) {
-                List<Category> categoryList = new ArrayList<>(categoryExcelVoList.size());
-                categoryExcelVoList.forEach(categoryExcelVo -> {
-                    Category category = new Category();
-                    category.setCreateBy(SecurityUtils.getUsername());
-                    category.setCreateTime(new Date());
-                    BeanUtils.copyProperties(categoryExcelVo, category);
-                    categoryList.add(category);
-                });
-                this.saveBatch(categoryList);
+            InputStream inputStream = file.getInputStream();
+            if (inputStream.available() == 0) {
+                throw new ServiceException("上传文件大小异常");
             }
+            String fileName = file.getOriginalFilename().toLowerCase();
+            if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xlsx") && !fileName.endsWith(".xlsx")) {
+                throw new ServiceException("上传文件格式错误");
+            }
+            EasyExcel.read(inputStream)
+                    .head(CategoryExcelVo.class)
+                    .registerReadListener(new CategoryExcelListener(this))
+                    .sheet().doRead();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void downloadTemplate(HttpServletResponse response) {
+        try {
+            // 设置响应结果类型
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+            String fileName = URLEncoder.encode("分类数据", "UTF-8");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+            response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+
+            List<CategoryExcelVo> categoryExcelVoList = new ArrayList<>();
+            EasyExcel.write(response.getOutputStream(), CategoryExcelVo.class).sheet("分类数据")
+                    .doWrite(categoryExcelVoList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean categoryExists(CategoryExcelVo categoryExcelVo) {
+        // 1、如果id已存在 表示数据重复
+        // 2、同一级pid 下 所有的分类不能重名
+        LambdaQueryWrapper<Category> queryWrapper = Wrappers.lambdaQuery(Category.class)
+                .eq(Category::getId, categoryExcelVo.getId())
+                .or(q -> q.eq(Category::getParentId, categoryExcelVo.getParentId())
+                        .eq(Category::getName, categoryExcelVo.getName()));
+        return this.count(queryWrapper) > 0;
     }
 
     @Override

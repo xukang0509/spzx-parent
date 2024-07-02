@@ -2,6 +2,7 @@ package com.spzx.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.spzx.product.domain.Category;
+import com.spzx.product.vo.CategoryExcelVo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,4 +43,13 @@ public interface CategoryService extends IService<Category> {
      * @param file 文件
      */
     void importCategory(MultipartFile file);
+
+    /**
+     * 下载模版
+     *
+     * @param response 响应报文
+     */
+    void downloadTemplate(HttpServletResponse response);
+
+    boolean categoryExists(CategoryExcelVo categoryExcelVo);
 }
