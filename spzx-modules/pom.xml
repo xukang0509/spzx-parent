@@ -15,6 +15,7 @@
         <module>spzx-file</module>
         <module>spzx-product</module>
         <module>spzx-user</module>
+        <module>spzx-order</module>
     </modules>
 
     <artifactId>spzx-modules</artifactId>

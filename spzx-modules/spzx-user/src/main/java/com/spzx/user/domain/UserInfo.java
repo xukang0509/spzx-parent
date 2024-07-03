@@ -59,7 +59,7 @@ public class UserInfo extends BaseEntity {
     /**
      * 性别
      */
-    @Excel(name = "性别")
+    @Excel(name = "性别", readConverterExp = "1=女,0=男")
     @Schema(description = "性别")
     private Integer sex;
 
@@ -102,7 +102,7 @@ public class UserInfo extends BaseEntity {
     /**
      * 状态：1为正常，0为禁止
      */
-    @Excel(name = "状态：1为正常，0为禁止")
+    @Excel(name = "状态", readConverterExp = "1=正常,0=禁用")
     @Schema(description = "状态：1为正常，0为禁止")
     private Long status;
 

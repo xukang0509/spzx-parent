@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spzx.order.mapper.OrderInfoMapper">
+
+    <resultMap type="com.spzx.order.domain.OrderInfo" id="OrderInfoResult" autoMapping="true">
+    </resultMap>
+
+    <sql id="selectOrderInfoVo">
+        select id, user_id, nick_name, order_no, coupon_id, total_amount,
+               coupon_amount, original_total_amount, feight_fee, order_status,
+               receiver_name, receiver_phone, receiver_tag_name, receiver_province,
+               receiver_city, receiver_district, receiver_address, payment_time,
+               delivery_time, receive_time, cancel_time, cancel_reason, create_time,
+               create_by, update_time, update_by, del_flag, remark from order_info
+    </sql>
+
+    <select id="selectOrderInfoList" parameterType="com.spzx.order.domain.OrderInfo" resultMap="OrderInfoResult">
+        <include refid="selectOrderInfoVo"/>
+        <where>
+            del_flag = 0
+            <if test="orderNo != null and orderNo != ''"> and order_no like concat('%', #{orderNo}, '%')</if>
+            <if test="orderStatus != null"> and order_status = #{orderStatus}</if>
+            <if test="receiverName != null  and receiverName != ''"> and receiver_name like concat('%', #{receiverName}, '%')</if>
+            <if test="receiverPhone != null  and receiverPhone != ''"> and receiver_phone like concat('%', #{receiverPhone}, '%')</if>
+            <if test="startTime != null and endTime != null">
+                and create_time  &gt;= #{startTime}
+                and create_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>
