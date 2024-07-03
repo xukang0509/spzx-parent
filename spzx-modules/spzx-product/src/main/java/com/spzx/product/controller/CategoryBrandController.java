@@ -3,6 +3,8 @@ package com.spzx.product.controller;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.log.annotation.Log;
+import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.domain.CategoryBrand;
 import com.spzx.product.service.CategoryBrandService;
@@ -42,6 +44,7 @@ public class CategoryBrandController extends BaseController {
         return success(categoryBrandService.selectCategoryBrandById(id));
     }
 
+    @Log(title = "分类品牌管理", businessType = BusinessType.INSERT)
     @RequiresPermissions("product:categoryBrand:add")
     @Operation(summary = "新增分类品牌")
     @PostMapping
@@ -49,6 +52,7 @@ public class CategoryBrandController extends BaseController {
         return toAjax(categoryBrandService.insertCategoryBrand(categoryBrand));
     }
 
+    @Log(title = "分类品牌管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("product:categoryBrand:edit")
     @Operation(summary = "修改分类品牌")
     @PutMapping
@@ -56,6 +60,7 @@ public class CategoryBrandController extends BaseController {
         return toAjax(categoryBrandService.updateCategoryBrand(categoryBrand));
     }
 
+    @Log(title = "分类品牌管理", businessType = BusinessType.DELETE)
     @RequiresPermissions("product:categoryBrand:remove")
     @Operation(summary = "删除分类品牌")
     @DeleteMapping("/{ids}")

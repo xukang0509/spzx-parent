@@ -2,6 +2,8 @@ package com.spzx.product.controller;
 
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
+import com.spzx.common.log.annotation.Log;
+import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +32,7 @@ public class CategoryController extends BaseController {
         return success(categoryService.treeSelect(id));
     }
 
+    @Log(title = "商品分类管理", businessType = BusinessType.EXPORT)
     @RequiresPermissions("product:category:export")
     @Operation(summary = "商品分类导出")
     @PostMapping("/export")
@@ -37,6 +40,7 @@ public class CategoryController extends BaseController {
         categoryService.exportCategory(response);
     }
 
+    @Log(title = "商品分类管理", businessType = BusinessType.IMPORT)
     @RequiresPermissions("product:category:import")
     @Operation(summary = "商品分类导入")
     @PostMapping("/import")

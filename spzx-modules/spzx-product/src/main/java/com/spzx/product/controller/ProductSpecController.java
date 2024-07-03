@@ -3,6 +3,8 @@ package com.spzx.product.controller;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.log.annotation.Log;
+import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.domain.ProductSpec;
@@ -43,6 +45,7 @@ public class ProductSpecController extends BaseController {
         return success(productSpecService.selectProductSpecById(id));
     }
 
+    @Log(title = "商品规格管理", businessType = BusinessType.INSERT)
     @RequiresPermissions("product:productSpec:add")
     @Operation(summary = "新增商品规格")
     @PostMapping
@@ -55,6 +58,7 @@ public class ProductSpecController extends BaseController {
         return toAjax(productSpecService.save(productSpec));
     }
 
+    @Log(title = "商品规格管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("product:productSpec:edit")
     @Operation(summary = "修改商品规格")
     @PutMapping
@@ -64,6 +68,7 @@ public class ProductSpecController extends BaseController {
         return toAjax(productSpecService.updateById(productSpec));
     }
 
+    @Log(title = "商品规格管理", businessType = BusinessType.DELETE)
     @RequiresPermissions("product:productSpec:remove")
     @Operation(summary = "删除商品规格")
     @DeleteMapping("/{ids}")

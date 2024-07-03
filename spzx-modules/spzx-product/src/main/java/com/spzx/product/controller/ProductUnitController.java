@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
+import com.spzx.common.log.annotation.Log;
+import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.domain.ProductUnit;
 import com.spzx.product.service.ProductUnitService;
@@ -52,6 +54,7 @@ public class ProductUnitController extends BaseController {
         return success(productUnitService.selectProductUnitById(id));
     }
 
+    @Log(title = "商品单位管理", businessType = BusinessType.INSERT)
     @RequiresPermissions("base:productUnit:add")
     @Operation(summary = "新增商品单位")
     @PostMapping
@@ -62,6 +65,7 @@ public class ProductUnitController extends BaseController {
         return toAjax(productUnitService.insertProductUnit(productUnit));
     }
 
+    @Log(title = "商品单位管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("base:productUnit:edit")
     @Operation(summary = "修改商品单位")
     @PutMapping
@@ -72,6 +76,7 @@ public class ProductUnitController extends BaseController {
         return toAjax(productUnitService.updateProductUnit(productUnit));
     }
 
+    @Log(title = "商品单位管理", businessType = BusinessType.DELETE)
     @RequiresPermissions("base:productUnit:remove")
     @Operation(summary = "删除商品单位")
     @DeleteMapping("/{ids}")
