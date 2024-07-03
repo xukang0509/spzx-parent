@@ -190,13 +190,7 @@ const { queryParams, form } = toRefs(data);
 /** 查询会员列表 */
 function getList() {
   loading.value = true;
-  if (dateRange.value != null && dateRange.value.length == 2) {
-    queryParams.value.startTime = dateRange.value[0];
-    queryParams.value.endTime = dateRange.value[1];
-  } else {
-    queryParams.value.startTime = null;
-    queryParams.value.endTime = null;
-  }
+  handleCalendarChange();
   listUserInfo(queryParams.value).then(response => {
     userInfoList.value = response.rows;
     total.value = response.total;
@@ -214,6 +208,7 @@ function handleQuery() {
 function resetQuery() {
   queryParams.value.startTime = null;
   queryParams.value.endTime = null;
+  queryParams.value.searchValue = null;
   dateRange.value = [];
   proxy.resetForm("queryRef");
   handleQuery();
@@ -241,6 +236,17 @@ function handleExport() {
   proxy.download('user/userInfo/export', {
     ...queryParams.value
   }, `userInfo_${new Date().getTime()}.xlsx`)
+}
+
+/* 搜索日期变化处理 */
+function handleCalendarChange() {
+  if (dateRange.value != null && dateRange.value.length == 2) {
+    queryParams.value.startTime = dateRange.value[0];
+    queryParams.value.endTime = dateRange.value[1];
+  } else {
+    queryParams.value.startTime = null;
+    queryParams.value.endTime = null;
+  }
 }
 
 getList();
