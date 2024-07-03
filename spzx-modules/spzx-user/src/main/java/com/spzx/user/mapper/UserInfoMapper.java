@@ -19,6 +19,6 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
      * @param userInfo 会员
      * @return 会员集合
      */
-    public List<UserInfo> selectUserInfoList(UserInfo userInfo);
+    List<UserInfo> selectUserInfoList(UserInfo userInfo);
 
 }

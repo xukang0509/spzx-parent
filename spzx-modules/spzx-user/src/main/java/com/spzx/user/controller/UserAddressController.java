@@ -8,7 +8,7 @@ import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.user.domain.UserAddress;
-import com.spzx.user.service.IUserAddressService;
+import com.spzx.user.service.UserAddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import java.util.List;
 @RequestMapping("/userAddress")
 public class UserAddressController extends BaseController {
     @Autowired
-    private IUserAddressService userAddressService;
+    private UserAddressService userAddressService;
 
     /**
      * 查询用户地址列表

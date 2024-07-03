@@ -11,7 +11,7 @@ import java.util.List;
  * @author xukang
  * @date 2024-07-02
  */
-public interface IUserAddressService extends IService<UserAddress> {
+public interface UserAddressService extends IService<UserAddress> {
 
     /**
      * 查询用户地址列表

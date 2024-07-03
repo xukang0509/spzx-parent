@@ -1,6 +1,8 @@
 package com.spzx.user.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spzx.common.core.annotation.Excel;
 import com.spzx.common.core.web.domain.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -104,4 +106,15 @@ public class UserInfo extends BaseEntity {
     @Schema(description = "状态：1为正常，0为禁止")
     private Long status;
 
+    @JsonIgnore
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(name = "开始时间")
+    @TableField(exist = false)
+    private Date startTime;
+
+    @JsonIgnore
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(name = "结束时间")
+    @TableField(exist = false)
+    private Date endTime;
 }

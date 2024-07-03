@@ -1,44 +1,20 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
+
+const baseURL = "/user/userInfo";
 
 // 查询会员列表
 export function listUserInfo(query) {
   return request({
-    url: '/user/userInfo/list',
+    url: `${baseURL}/list`,
     method: 'get',
     params: query
   })
 }
 
-// 查询会员详细
-export function getUserInfo(id) {
+// 获取会员地址
+export function getUserAddress(userId) {
   return request({
-    url: '/user/userInfo/' + id,
+    url: `${baseURL}/getUserAddress/${userId}`,
     method: 'get'
-  })
-}
-
-// 新增会员
-export function addUserInfo(data) {
-  return request({
-    url: '/user/userInfo',
-    method: 'post',
-    data: data
-  })
-}
-
-// 修改会员
-export function updateUserInfo(data) {
-  return request({
-    url: '/user/userInfo',
-    method: 'put',
-    data: data
-  })
-}
-
-// 删除会员
-export function delUserInfo(id) {
-  return request({
-    url: '/user/userInfo/' + id,
-    method: 'delete'
   })
 }
