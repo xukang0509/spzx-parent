@@ -2,10 +2,12 @@ package com.spzx.product.service.impl;
 
 import com.spzx.common.core.constant.UserConstants;
 import com.spzx.common.security.utils.SecurityUtils;
+import com.spzx.product.api.domain.BrandVo;
 import com.spzx.product.domain.Brand;
 import com.spzx.product.mapper.BrandMapper;
 import com.spzx.product.service.BrandService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -99,4 +101,15 @@ public class BrandServiceImpl implements BrandService {
         }
         return UserConstants.UNIQUE;
     }
+
+    @Override
+    public List<BrandVo> selectAllBrandVo() {
+        List<Brand> brandList = brandMapper.selectBrandList(null);
+        return brandList.stream().map(brand -> {
+            BrandVo brandVo = new BrandVo();
+            BeanUtils.copyProperties(brand, brandVo);
+            return brandVo;
+        }).toList();
+    }
+
 }

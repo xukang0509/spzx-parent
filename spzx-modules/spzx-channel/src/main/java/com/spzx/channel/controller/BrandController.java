@@ -1,6 +1,6 @@
 package com.spzx.channel.controller;
 
-import com.spzx.channel.service.CategoryService;
+import com.spzx.channel.service.BrandService;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@Tag(name = "商品分类管理")
+@Tag(name = "品牌管理")
 @RestController
-@RequestMapping("/category")
-public class CategoryController extends BaseController {
+@RequestMapping("brand")
+public class BrandController extends BaseController {
     @Resource
-    private CategoryService categoryService;
+    private BrandService brandService;
 
-    @Operation(summary = "获取商品分类树形数据")
-    @GetMapping("/tree")
-    public AjaxResult tree() {
-        return success(categoryService.getTreeCategory());
+    @Operation(summary = "获取所有品牌")
+    @GetMapping("getBrandAll")
+    public AjaxResult getBrandAll() {
+        return success(brandService.getBrandAll());
     }
 }

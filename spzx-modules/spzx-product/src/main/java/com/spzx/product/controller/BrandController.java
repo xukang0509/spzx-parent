@@ -1,12 +1,15 @@
 package com.spzx.product.controller;
 
+import com.spzx.common.core.domain.R;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.common.security.utils.SecurityUtils;
+import com.spzx.product.api.domain.BrandVo;
 import com.spzx.product.domain.Brand;
 import com.spzx.product.service.BrandService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -81,5 +84,12 @@ public class BrandController extends BaseController {
     @GetMapping("/getBrandAll")
     public AjaxResult getBrandAll() {
         return success(brandService.selectBrandAll());
+    }
+
+    @InnerAuth
+    @Operation(summary = "获取所有的品牌")
+    @GetMapping("getAllBrandVo")
+    public R<List<BrandVo>> getBrandVoList() {
+        return R.ok(brandService.selectAllBrandVo());
     }
 }

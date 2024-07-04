@@ -1,6 +1,7 @@
 package com.spzx.product.service;
 
 
+import com.spzx.product.api.domain.BrandVo;
 import com.spzx.product.domain.Brand;
 
 import java.util.List;
@@ -63,4 +64,6 @@ public interface BrandService {
      * @return true 名称唯一；false 名称不唯一
      */
     boolean checkUniqueName(Brand brand);
+
+    List<BrandVo> selectAllBrandVo();
 }

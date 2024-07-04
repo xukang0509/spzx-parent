@@ -1,5 +1,6 @@
 package com.spzx.product.controller;
 
+import com.github.pagehelper.PageHelper;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
@@ -9,9 +10,11 @@ import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.product.api.domain.ProductSku;
+import com.spzx.product.api.domain.SkuQuery;
 import com.spzx.product.domain.Product;
 import com.spzx.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -89,5 +92,21 @@ public class ProductController extends BaseController {
     @GetMapping("getTopSale")
     public R<List<ProductSku>> getTopSale() {
         return R.ok(productService.getTopSale());
+    }
+
+    @InnerAuth
+    @Operation(summary = "条件查询SKU")
+    @GetMapping("/skuList/{pageNum}/{pageSize}")
+    public R<TableDataInfo> skuList(
+            @Parameter(name = "pageNum", description = "当前页码", required = true)
+            @PathVariable Integer pageNum,
+            @Parameter(name = "pageSize", description = "每页记录数", required = true)
+            @PathVariable Integer pageSize,
+            @Parameter(name = "productQuery", description = "查询对象", required = false)
+            @ModelAttribute SkuQuery skuQuery
+    ) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<ProductSku> list = productService.selectProductSkuList(skuQuery);
+        return R.ok(getDataTable(list));
     }
 }

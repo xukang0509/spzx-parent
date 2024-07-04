@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.api.domain.ProductSku;
+import com.spzx.product.api.domain.SkuQuery;
 import com.spzx.product.domain.Product;
 import com.spzx.product.domain.ProductDetails;
 import com.spzx.product.domain.SkuStock;
@@ -244,5 +245,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public List<ProductSku> getTopSale() {
         return productSkuMapper.getTopSale();
+    }
+
+    @Override
+    public List<ProductSku> selectProductSkuList(SkuQuery skuQuery) {
+        return productSkuMapper.selectProductSkuList(skuQuery);
     }
 }
