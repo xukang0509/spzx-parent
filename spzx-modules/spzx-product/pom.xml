@@ -9,7 +9,6 @@
         <version>3.6.3</version>
     </parent>
 
-    <groupId>com.atguigu</groupId>
     <artifactId>spzx-product</artifactId>
     <description>spzx-product商品模块</description>
 

@@ -1,8 +1,9 @@
 package com.spzx.product.service;
 
-import com.spzx.product.domain.ProductSku;
 import com.baomidou.mybatisplus.extension.service.IService;
-public interface ProductSkuService extends IService<ProductSku>{
+import com.spzx.product.api.domain.ProductSku;
+
+public interface ProductSkuService extends IService<ProductSku> {
 
 
 }

@@ -3,12 +3,13 @@ package com.spzx.product.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.security.utils.SecurityUtils;
+import com.spzx.product.api.domain.ProductSku;
 import com.spzx.product.domain.Product;
 import com.spzx.product.domain.ProductDetails;
-import com.spzx.product.domain.ProductSku;
 import com.spzx.product.domain.SkuStock;
 import com.spzx.product.mapper.ProductDetailsMapper;
 import com.spzx.product.mapper.ProductMapper;
+import com.spzx.product.mapper.ProductSkuMapper;
 import com.spzx.product.mapper.SkuStockMapper;
 import com.spzx.product.service.ProductService;
 import com.spzx.product.service.ProductSkuService;
@@ -40,6 +41,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Resource
     private ProductDetailsMapper productDetailsMapper;
+
+    @Resource
+    private ProductSkuMapper productSkuMapper;
 
     /**
      * 查询商品列表
@@ -235,5 +239,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 .set(ProductSku::getStatus, product.getStatus())
                 .set(ProductSku::getUpdateBy, SecurityUtils.getUsername()));
         productMapper.updateById(product);
+    }
+
+    @Override
+    public List<ProductSku> getTopSale() {
+        return productSkuMapper.getTopSale();
     }
 }

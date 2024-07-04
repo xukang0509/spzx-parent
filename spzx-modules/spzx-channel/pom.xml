@@ -9,8 +9,10 @@
         <version>3.6.3</version>
     </parent>
 
-    <artifactId>spzx-user</artifactId>
-    <description>spzx-user会员模块</description>
+    <artifactId>spzx-channel</artifactId>
+    <description>
+        spzx-channel频道页模块
+    </description>
 
     <dependencies>
         <!-- SpringCloud Alibaba Nacos -->

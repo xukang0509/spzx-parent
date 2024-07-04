@@ -16,6 +16,7 @@
         <module>spzx-product</module>
         <module>spzx-user</module>
         <module>spzx-order</module>
+        <module>spzx-channel</module>
     </modules>
 
     <artifactId>spzx-modules</artifactId>
@@ -25,4 +26,11 @@
         spzx-modules业务模块
     </description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.spzx</groupId>
+            <artifactId>spzx-api-product</artifactId>
+            <version>3.6.3</version>
+        </dependency>
+    </dependencies>
 </project>

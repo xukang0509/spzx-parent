@@ -1,10 +1,13 @@
 package com.spzx.product.controller;
 
+import com.spzx.common.core.domain.R;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresPermissions;
+import com.spzx.product.api.domain.CategoryVo;
 import com.spzx.product.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +15,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 商品分类Controller
@@ -58,5 +63,19 @@ public class CategoryController extends BaseController {
     @PostMapping("/importTemplate")
     public void downloadTemplate(HttpServletResponse response) {
         categoryService.downloadTemplate(response);
+    }
+
+    @InnerAuth
+    @Operation(summary = "获取商品一级分类")
+    @GetMapping(value = "/getOneCategory")
+    public R<List<CategoryVo>> getOneCategory() {
+        return R.ok(categoryService.getOneCategory());
+    }
+
+    @InnerAuth
+    @Operation(summary = "分类数据树形展示")
+    @GetMapping(value = "/getTreeCategory")
+    public R<List<CategoryVo>> treeCategory() {
+        return R.ok(categoryService.treeCategory());
     }
 }

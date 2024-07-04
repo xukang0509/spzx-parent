@@ -9,7 +9,6 @@
         <version>3.6.3</version>
     </parent>
 
-    <groupId>com.yx</groupId>
     <artifactId>spzx-order</artifactId>
     <description>spzx-order订单模块</description>
 

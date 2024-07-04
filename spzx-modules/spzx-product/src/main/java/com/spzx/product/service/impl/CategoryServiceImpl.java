@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
+import com.spzx.product.api.domain.CategoryVo;
 import com.spzx.product.domain.Category;
 import com.spzx.product.handler.CategoryExcelListener;
 import com.spzx.product.mapper.CategoryMapper;
@@ -124,6 +125,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .or(q -> q.eq(Category::getParentId, categoryExcelVo.getParentId())
                         .eq(Category::getName, categoryExcelVo.getName()));
         return this.count(queryWrapper) > 0;
+    }
+
+    @Override
+    public List<CategoryVo> getOneCategory() {
+        return getChildren(0L);
+    }
+
+    @Override
+    public List<CategoryVo> treeCategory() {
+        // 获取一级 分类数据集合
+        List<CategoryVo> oneCategoryList = getChildren(0L);
+        for (CategoryVo categoryVo1 : oneCategoryList) {
+            List<CategoryVo> twoCategoryList = getChildren(categoryVo1.getId());
+            for (CategoryVo categoryVo2 : twoCategoryList) {
+                categoryVo2.setChildren(getChildren(categoryVo2.getId()));
+            }
+            categoryVo1.setChildren(twoCategoryList);
+        }
+        return oneCategoryList;
+    }
+
+    private List<CategoryVo> getChildren(Long parentId) {
+        List<Category> categoryList = categoryMapper.selectList(Wrappers.lambdaQuery(Category.class)
+                .eq(Category::getParentId, parentId));
+        return categoryList.stream().map(category -> {
+            CategoryVo categoryVo = new CategoryVo();
+            BeanUtils.copyProperties(category, categoryVo);
+            return categoryVo;
+        }).toList();
     }
 
     @Override

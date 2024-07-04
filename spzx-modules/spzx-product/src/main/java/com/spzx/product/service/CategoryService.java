@@ -1,6 +1,7 @@
 package com.spzx.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.spzx.product.api.domain.CategoryVo;
 import com.spzx.product.domain.Category;
 import com.spzx.product.vo.CategoryExcelVo;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,4 +53,13 @@ public interface CategoryService extends IService<Category> {
     void downloadTemplate(HttpServletResponse response);
 
     boolean categoryExists(CategoryExcelVo categoryExcelVo);
+
+    /**
+     * 获取商品一级分类
+     *
+     * @return
+     */
+    List<CategoryVo> getOneCategory();
+
+    List<CategoryVo> treeCategory();
 }
