@@ -28,7 +28,7 @@ public class RemoteCategoryFallbackFactory implements FallbackFactory<RemoteCate
 
             @Override
             public R<List<CategoryVo>> treeCategory(String source) {
-                return R.fail("获取分类数据树形展示失败：" + cause.getMessage());
+                return R.fail("获取全部分类失败：" + cause.getMessage());
             }
         };
     }

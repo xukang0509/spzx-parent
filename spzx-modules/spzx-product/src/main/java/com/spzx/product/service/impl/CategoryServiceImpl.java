@@ -9,6 +9,7 @@ import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.api.domain.CategoryVo;
 import com.spzx.product.domain.Category;
 import com.spzx.product.handler.CategoryExcelListener;
+import com.spzx.product.helper.CategoryHelper;
 import com.spzx.product.mapper.CategoryMapper;
 import com.spzx.product.service.CategoryService;
 import com.spzx.product.vo.CategoryExcelVo;
@@ -129,31 +130,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public List<CategoryVo> getOneCategory() {
-        return getChildren(0L);
-    }
-
-    @Override
-    public List<CategoryVo> treeCategory() {
-        // 获取一级 分类数据集合
-        List<CategoryVo> oneCategoryList = getChildren(0L);
-        for (CategoryVo categoryVo1 : oneCategoryList) {
-            List<CategoryVo> twoCategoryList = getChildren(categoryVo1.getId());
-            for (CategoryVo categoryVo2 : twoCategoryList) {
-                categoryVo2.setChildren(getChildren(categoryVo2.getId()));
-            }
-            categoryVo1.setChildren(twoCategoryList);
-        }
-        return oneCategoryList;
-    }
-
-    private List<CategoryVo> getChildren(Long parentId) {
         List<Category> categoryList = categoryMapper.selectList(Wrappers.lambdaQuery(Category.class)
-                .eq(Category::getParentId, parentId));
+                .eq(Category::getParentId, 0));
         return categoryList.stream().map(category -> {
             CategoryVo categoryVo = new CategoryVo();
             BeanUtils.copyProperties(category, categoryVo);
             return categoryVo;
         }).toList();
+    }
+
+    @Override
+    public List<CategoryVo> treeCategory() {
+        List<Category> categoryList = categoryMapper.selectList(null);
+        List<CategoryVo> categoryVoList = categoryList.stream().map(category -> {
+            CategoryVo categoryVo = new CategoryVo();
+            BeanUtils.copyProperties(category, categoryVo);
+            return categoryVo;
+        }).toList();
+        return CategoryHelper.buildTree(categoryVoList);
     }
 
     @Override
