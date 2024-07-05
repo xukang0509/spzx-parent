@@ -2,6 +2,7 @@ package com.spzx.product.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.spzx.common.redis.cache.RedisCache;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.api.domain.*;
 import com.spzx.product.domain.SkuStock;
@@ -12,15 +13,16 @@ import com.spzx.product.mapper.SkuStockMapper;
 import com.spzx.product.service.ProductService;
 import com.spzx.product.service.ProductSkuService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * @author spzx
  */
 @Service
+@Slf4j
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
     @Resource
     private ProductMapper productMapper;
@@ -44,6 +47,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Resource
     private ProductSkuMapper productSkuMapper;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     /**
      * 查询商品列表
@@ -251,22 +257,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return productSkuMapper.selectProductSkuList(skuQuery);
     }
 
-    @Override
-    public ProductSku getProductSkuBySkuId(Long skuId) {
-        return productSkuMapper.selectById(skuId);
-    }
-
+    @RedisCache(prefix = "product:")
     @Override
     public Product getProductById(Long productId) {
         return productMapper.selectById(productId);
     }
 
+    @RedisCache(prefix = "product:details:")
     @Override
     public ProductDetails getProductDetailsByProductId(Long productId) {
         return productDetailsMapper.selectOne(Wrappers.lambdaQuery(ProductDetails.class)
                 .eq(ProductDetails::getProductId, productId));
     }
 
+    @RedisCache(prefix = "sku:stockVo:")
     @Override
     public SkuStockVo getSkuStockVoBySkuId(Long skuId) {
         SkuStock skuStock = skuStockMapper.selectOne(Wrappers.lambdaQuery(SkuStock.class)
@@ -277,6 +281,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return skuStockVo;
     }
 
+    @RedisCache(prefix = "sku:specValue:")
     @Override
     public Map<String, Long> getSkuSpecValueMapByProductId(Long productId) {
         List<ProductSku> productSkus = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
@@ -289,5 +294,76 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return map;
     }
 
+    /**
+     * 分布式锁查询SKU商品信息
+     *
+     * @param skuId
+     * @return
+     */
+    @Override
+    public ProductSku getProductSkuBySkuId(Long skuId) {
+        try {
+            // 1.优先从缓存中获取数据
+            // 1.1 构建业务数据key 形式：前缀+业务唯一标识
+            String dataKey = "product:sku:" + skuId;
+            // 1.2 查询Redis获取业务数据
+            ProductSku productSku = (ProductSku) redisTemplate.opsForValue().get(dataKey);
+            // 1.3 命中缓存则直接返回
+            if (productSku != null) {
+                log.info("命中缓存，直接返回，线程ID：{}，线程名称：{}",
+                        Thread.currentThread().getId(), Thread.currentThread().getName());
+                return productSku;
+            }
 
+            // 2.尝试获取分布式锁(set k v ex nx 可能获取锁失败)
+            // 2.1 构建锁key
+            String lockKey = "product:sku:lock:" + skuId;
+            // 2.2 使用uuid作为线程标识
+            String lockValue = UUID.randomUUID().toString();
+            // 2.3 使用Redis提供set nx ex 获取分布式锁
+            Boolean flag = redisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, 5, TimeUnit.SECONDS);
+            if (flag) {
+                // 3 获取锁成功执行业务，将查询业务数据放入缓存Redis
+                log.info("获取锁成功：{}，线程名称：{}", Thread.currentThread().getId(),
+                        Thread.currentThread().getName());
+                try {
+                    productSku = this.getProductSkuBySkuIdFromDB(skuId);
+                    long ttl = productSku == null ? 1 * 60 : 10 * 60;
+                    redisTemplate.opsForValue().set(dataKey, productSku, ttl, TimeUnit.SECONDS);
+                    return productSku;
+                } finally {
+                    // 4 业务执行完毕后 释放锁
+                    String script =
+                            "if redis.call(\"get\",KEYS[1]) == ARGV[1]\n" +
+                                    "then\n" +
+                                    "   return redis.call(\"del\", KEYS[1])\n" +
+                                    "else\n" +
+                                    "   return 0\n" +
+                                    "end";
+                    DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+                    redisScript.setScriptText(script);
+                    redisScript.setResultType(Long.class);
+                    redisTemplate.execute(redisScript, Arrays.asList(lockKey), lockValue);
+                }
+            } else {
+                //获取锁失败则自旋
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                log.error("获取锁失败，自旋：{}，线程名称：{}", Thread.currentThread().getId(),
+                        Thread.currentThread().getName());
+                return this.getProductSkuBySkuId(skuId);
+            }
+        } catch (Exception e) {
+            // 兜底解决方案：Redis服务有问题，将业务数据获取自动从数据库中获取
+            log.error("[商品服务]查询商品信息异常：{}", e);
+            return getProductSkuBySkuIdFromDB(skuId);
+        }
+    }
+
+    private ProductSku getProductSkuBySkuIdFromDB(Long skuId) {
+        return productSkuMapper.selectById(skuId);
+    }
 }

@@ -25,3 +25,11 @@ spring:
         # 共享配置
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+    openfeign:
+      client:
+        config:
+          spzx-product:
+            logger-level: full
+logging:
+  level:
+    com.spzx.product.api: debug
