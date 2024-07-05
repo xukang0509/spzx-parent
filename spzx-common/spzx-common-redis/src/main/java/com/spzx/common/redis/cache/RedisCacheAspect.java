@@ -53,6 +53,8 @@ public class RedisCacheAspect {
             // 1.2 查询Redis缓存中业务数据
             Object resultObject = redisTemplate.opsForValue().get(dataKey);
             if (resultObject != null) {
+                log.info("命中缓存，直接返回，KEY：{}，线程ID：{}，线程名称：{}", dataKey,
+                        Thread.currentThread().getId(), Thread.currentThread().getName());
                 // 1.3 命中缓存直接返回即可
                 return resultObject;
             }
@@ -65,11 +67,15 @@ public class RedisCacheAspect {
             // 2.3 利用Redis提供set nx ex 获取分布式锁
             Boolean flag = redisTemplate.opsForValue().setIfAbsent(lockKey, lockVal, 5, TimeUnit.SECONDS);
             if (flag) {
+                log.info("获取锁成功：{}，线程名称：{}", Thread.currentThread().getId(),
+                        Thread.currentThread().getName());
                 // 3.执行目标方法
                 try {
                     // 3.1 再次查询一次缓存：处于阻塞等待获取线程(终将获取锁成功) 避免获取锁线程再次查库，这里再查一次缓存
                     resultObject = redisTemplate.opsForValue().get(dataKey);
                     if (resultObject != null) {
+                        log.info("命中缓存，直接返回，KEY：{}，线程ID：{}，线程名称：{}", dataKey,
+                                Thread.currentThread().getId(), Thread.currentThread().getName());
                         return resultObject;
                     }
                     // 3.2 未命中缓存，执行查询数据库(目标方法)

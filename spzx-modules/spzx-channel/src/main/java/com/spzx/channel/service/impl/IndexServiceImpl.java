@@ -1,7 +1,6 @@
 package com.spzx.channel.service.impl;
 
 import com.spzx.channel.service.IndexService;
-import com.spzx.common.core.constant.SecurityConstants;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.api.RemoteCategoryService;
@@ -24,11 +23,11 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public Map<String, Object> getIndexData() {
-        R<List<CategoryVo>> oneCategoryRes = remoteCategoryService.getOneCategory(SecurityConstants.INNER);
+        R<List<CategoryVo>> oneCategoryRes = remoteCategoryService.getOneCategory();
         if (R.FAIL == oneCategoryRes.getCode()) {
             throw new ServiceException(oneCategoryRes.getMsg());
         }
-        R<List<ProductSku>> topSaleRes = remoteProductService.getTopSale(SecurityConstants.INNER);
+        R<List<ProductSku>> topSaleRes = remoteProductService.getTopSale();
         if (R.FAIL == topSaleRes.getCode()) {
             throw new ServiceException(topSaleRes.getMsg());
         }

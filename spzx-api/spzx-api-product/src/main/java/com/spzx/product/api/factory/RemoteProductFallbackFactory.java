@@ -24,37 +24,37 @@ public class RemoteProductFallbackFactory implements FallbackFactory<RemoteProdu
         log.error("商品服务调用失败：{}", cause.getMessage());
         return new RemoteProductService() {
             @Override
-            public R<List<ProductSku>> getTopSale(String source) {
+            public R<List<ProductSku>> getTopSale() {
                 return R.fail("获取畅销商品列表失败：" + cause.getMessage());
             }
 
             @Override
-            public R<TableDataInfo> skuList(Integer pageNum, Integer pageSize, SkuQuery skuQuery, String source) {
+            public R<TableDataInfo> skuList(Integer pageNum, Integer pageSize, SkuQuery skuQuery) {
                 return R.fail("获取商品列表失败：" + cause.getMessage());
             }
 
             @Override
-            public R<ProductSku> getProductSku(Long skuId, String source) {
+            public R<ProductSku> getProductSku(Long skuId) {
                 return R.fail("获取商品SKU失败：" + cause.getMessage());
             }
 
             @Override
-            public R<Product> getProduct(Long productId, String source) {
+            public R<Product> getProduct(Long productId) {
                 return R.fail("获取商品失败：" + cause.getMessage());
             }
 
             @Override
-            public R<ProductDetails> getProductDetails(Long productId, String source) {
+            public R<ProductDetails> getProductDetails(Long productId) {
                 return R.fail("获取商品详细信息失败：" + cause.getMessage());
             }
 
             @Override
-            public R<SkuStockVo> getSkuStockVo(Long skuId, String source) {
+            public R<SkuStockVo> getSkuStockVo(Long skuId) {
                 return R.fail("获取sku库存信息失败：" + cause.getMessage());
             }
 
             @Override
-            public R<Map<String, Long>> getSkuSpecValueMap(Long productId, String source) {
+            public R<Map<String, Long>> getSkuSpecValueMap(Long productId) {
                 return R.fail("获取商品sku规则详细信息失败：" + cause.getMessage());
             }
         };

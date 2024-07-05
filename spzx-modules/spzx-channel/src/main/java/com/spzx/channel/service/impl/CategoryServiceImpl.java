@@ -1,7 +1,6 @@
 package com.spzx.channel.service.impl;
 
 import com.spzx.channel.service.CategoryService;
-import com.spzx.common.core.constant.SecurityConstants;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.api.RemoteCategoryService;
@@ -18,7 +17,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryVo> getTreeCategory() {
-        R<List<CategoryVo>> treedCategoryRes = remoteCategoryService.treeCategory(SecurityConstants.INNER);
+        R<List<CategoryVo>> treedCategoryRes = remoteCategoryService.treeCategory();
         if (R.FAIL == treedCategoryRes.getCode()) {
             throw new ServiceException(treedCategoryRes.getMsg());
         }

@@ -22,12 +22,12 @@ public class RemoteCategoryFallbackFactory implements FallbackFactory<RemoteCate
         log.error("商品服务调用失败：{}", cause.getMessage());
         return new RemoteCategoryService() {
             @Override
-            public R<List<CategoryVo>> getOneCategory(String source) {
+            public R<List<CategoryVo>> getOneCategory() {
                 return R.fail("获取全部一级分类失败：" + cause.getMessage());
             }
 
             @Override
-            public R<List<CategoryVo>> treeCategory(String source) {
+            public R<List<CategoryVo>> treeCategory() {
                 return R.fail("获取全部分类失败：" + cause.getMessage());
             }
         };

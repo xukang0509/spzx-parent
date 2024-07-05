@@ -1,7 +1,6 @@
 package com.spzx.channel.service.impl;
 
 import com.spzx.channel.service.ListService;
-import com.spzx.common.core.constant.SecurityConstants;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.web.page.TableDataInfo;
@@ -17,7 +16,7 @@ public class ListServiceImpl implements ListService {
 
     @Override
     public TableDataInfo skuList(Integer pageNum, Integer pageSize, SkuQuery skuQuery) {
-        R<TableDataInfo> tableDataInfoRes = remoteProductService.skuList(pageNum, pageSize, skuQuery, SecurityConstants.INNER);
+        R<TableDataInfo> tableDataInfoRes = remoteProductService.skuList(pageNum, pageSize, skuQuery);
         if (tableDataInfoRes.getCode() == R.FAIL) {
             throw new ServiceException(tableDataInfoRes.getMsg());
         }

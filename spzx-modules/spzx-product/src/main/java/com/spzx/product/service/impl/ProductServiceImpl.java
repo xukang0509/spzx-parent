@@ -14,6 +14,8 @@ import com.spzx.product.service.ProductService;
 import com.spzx.product.service.ProductSkuService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -50,6 +52,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Resource
     private RedisTemplate redisTemplate;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 查询商品列表
@@ -237,6 +242,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         product.setId(id);
         if (status == 1) {
             product.setStatus(1);
+            // sku加入布隆过滤器
+            RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter("sku:bloom:filter");
+            List<ProductSku> productSkuList = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
+                    .eq(ProductSku::getProductId, id));
+            productSkuList.forEach(item -> bloomFilter.add(item.getId()));
         } else {
             product.setStatus(-1);
         }
@@ -310,7 +320,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             ProductSku productSku = (ProductSku) redisTemplate.opsForValue().get(dataKey);
             // 1.3 命中缓存则直接返回
             if (productSku != null) {
-                log.info("命中缓存，直接返回，线程ID：{}，线程名称：{}",
+                log.info("命中缓存，直接返回，KEY：{}，线程ID：{}，线程名称：{}", dataKey,
                         Thread.currentThread().getId(), Thread.currentThread().getName());
                 return productSku;
             }

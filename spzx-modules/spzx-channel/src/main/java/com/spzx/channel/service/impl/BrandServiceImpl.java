@@ -1,7 +1,6 @@
 package com.spzx.channel.service.impl;
 
 import com.spzx.channel.service.BrandService;
-import com.spzx.common.core.constant.SecurityConstants;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.api.RemoteBrandService;
@@ -18,7 +17,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public List<BrandVo> getBrandAll() {
-        R<List<BrandVo>> brandVoListRes = remoteBrandService.getBrandVoList(SecurityConstants.INNER);
+        R<List<BrandVo>> brandVoListRes = remoteBrandService.getBrandVoList();
         if (brandVoListRes.getCode() == R.FAIL) {
             throw new ServiceException(brandVoListRes.getMsg());
         }

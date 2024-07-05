@@ -10,4 +10,6 @@ public interface ProductSkuMapper extends BaseMapper<ProductSku> {
     List<ProductSku> getTopSale();
 
     List<ProductSku> selectProductSkuList(SkuQuery skuQuery);
+
+    List<Long> getProductSkuIdsOnSale();
 }

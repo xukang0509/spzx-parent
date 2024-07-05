@@ -19,7 +19,7 @@ public class RemoteBrandFallbackFactory implements FallbackFactory<RemoteBrandSe
         log.error("商品服务调用失败:{}", cause.getMessage());
         return new RemoteBrandService() {
             @Override
-            public R<List<BrandVo>> getBrandVoList(String source) {
+            public R<List<BrandVo>> getBrandVoList() {
                 return R.fail("获取全部品牌失败：" + cause.getMessage());
             }
         };

@@ -40,4 +40,10 @@
         <if test="order == 2">order by sku.sale_price asc</if>
         <if test="order == 3">order by sku.sale_price desc</if>
     </select>
+
+    <select id="getProductSkuIdsOnSale" resultType="java.lang.Long">
+        select sku.id from product_sku sku
+        left join product p on sku.product_id = p.id and p.del_flag = 0
+        where sku.del_flag = 0 and p.status = 1
+    </select>
 </mapper>
