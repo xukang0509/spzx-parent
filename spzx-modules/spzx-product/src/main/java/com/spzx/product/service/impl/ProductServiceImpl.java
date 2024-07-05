@@ -3,10 +3,7 @@ package com.spzx.product.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.security.utils.SecurityUtils;
-import com.spzx.product.api.domain.ProductSku;
-import com.spzx.product.api.domain.SkuQuery;
-import com.spzx.product.domain.Product;
-import com.spzx.product.domain.ProductDetails;
+import com.spzx.product.api.domain.*;
 import com.spzx.product.domain.SkuStock;
 import com.spzx.product.mapper.ProductDetailsMapper;
 import com.spzx.product.mapper.ProductMapper;
@@ -15,11 +12,13 @@ import com.spzx.product.mapper.SkuStockMapper;
 import com.spzx.product.service.ProductService;
 import com.spzx.product.service.ProductSkuService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -251,4 +250,44 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public List<ProductSku> selectProductSkuList(SkuQuery skuQuery) {
         return productSkuMapper.selectProductSkuList(skuQuery);
     }
+
+    @Override
+    public ProductSku getProductSkuBySkuId(Long skuId) {
+        return productSkuMapper.selectById(skuId);
+    }
+
+    @Override
+    public Product getProductById(Long productId) {
+        return productMapper.selectById(productId);
+    }
+
+    @Override
+    public ProductDetails getProductDetailsByProductId(Long productId) {
+        return productDetailsMapper.selectOne(Wrappers.lambdaQuery(ProductDetails.class)
+                .eq(ProductDetails::getProductId, productId));
+    }
+
+    @Override
+    public SkuStockVo getSkuStockVoBySkuId(Long skuId) {
+        SkuStock skuStock = skuStockMapper.selectOne(Wrappers.lambdaQuery(SkuStock.class)
+                .eq(SkuStock::getSkuId, skuId)
+                .select(SkuStock::getSkuId, SkuStock::getAvailableNum, SkuStock::getSaleNum));
+        SkuStockVo skuStockVo = new SkuStockVo();
+        BeanUtils.copyProperties(skuStock, skuStockVo);
+        return skuStockVo;
+    }
+
+    @Override
+    public Map<String, Long> getSkuSpecValueMapByProductId(Long productId) {
+        List<ProductSku> productSkus = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
+                .eq(ProductSku::getProductId, productId)
+                .select(ProductSku::getId, ProductSku::getSkuSpec));
+        Map<String, Long> map = new HashMap<>();
+        productSkus.forEach(productSku -> {
+            map.put(productSku.getSkuSpec(), productSku.getId());
+        });
+        return map;
+    }
+
+
 }

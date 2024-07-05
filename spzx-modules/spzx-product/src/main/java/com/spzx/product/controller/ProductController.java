@@ -9,9 +9,7 @@ import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresPermissions;
-import com.spzx.product.api.domain.ProductSku;
-import com.spzx.product.api.domain.SkuQuery;
-import com.spzx.product.domain.Product;
+import com.spzx.product.api.domain.*;
 import com.spzx.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +18,7 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -108,5 +107,40 @@ public class ProductController extends BaseController {
         PageHelper.startPage(pageNum, pageSize);
         List<ProductSku> list = productService.selectProductSkuList(skuQuery);
         return R.ok(getDataTable(list));
+    }
+
+    @Operation(summary = "获取商品sku信息")
+    @InnerAuth
+    @GetMapping("/getProductSku/{skuId}")
+    public R<ProductSku> getProductSku(@PathVariable Long skuId) {
+        return R.ok(productService.getProductSkuBySkuId(skuId));
+    }
+
+    @Operation(summary = "获取商品信息")
+    @InnerAuth
+    @GetMapping("/getProduct/{productId}")
+    public R<Product> getProduct(@PathVariable Long productId) {
+        return R.ok(productService.getProductById(productId));
+    }
+
+    @Operation(summary = "获取商品详细信息")
+    @InnerAuth
+    @GetMapping("/getProductDetails/{productId}")
+    public R<ProductDetails> getProductDetails(@PathVariable Long productId) {
+        return R.ok(productService.getProductDetailsByProductId(productId));
+    }
+
+    @Operation(summary = "获取sku库存信息")
+    @InnerAuth
+    @GetMapping("/getSkuStockVo/{skuId}")
+    public R<SkuStockVo> getSkuStockVo(@PathVariable Long skuId) {
+        return R.ok(productService.getSkuStockVoBySkuId(skuId));
+    }
+
+    @Operation(summary = "获取商品sku规则详细信息")
+    @InnerAuth
+    @GetMapping("/getSkuSpecValue/{productId}")
+    public R<Map<String, Long>> getSkuSpecValueMap(@PathVariable Long productId) {
+        return R.ok(productService.getSkuSpecValueMapByProductId(productId));
     }
 }

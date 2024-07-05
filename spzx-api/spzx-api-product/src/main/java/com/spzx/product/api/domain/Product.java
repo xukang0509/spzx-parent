@@ -1,9 +1,8 @@
-package com.spzx.product.domain;
+package com.spzx.product.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.spzx.common.core.web.domain.BaseEntity;
-import com.spzx.product.api.domain.ProductSku;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

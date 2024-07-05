@@ -1,4 +1,4 @@
-package com.spzx.product.domain;
+package com.spzx.product.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

@@ -16,7 +16,7 @@ public class CategoryHelper {
     public static List<CategoryVo> buildTree(List<CategoryVo> categoryVoList) {
         List<CategoryVo> trees = new ArrayList<>();
         for (CategoryVo categoryVo : categoryVoList) {
-            if (categoryVo.getParentId().longValue() == 0) {
+            if (categoryVo.getParentId().longValue() == 0L) {
                 trees.add(findChildren(categoryVo, categoryVoList));
             }
         }

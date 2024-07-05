@@ -1,7 +1,7 @@
 package com.spzx.product.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.spzx.product.domain.ProductDetails;
+import com.spzx.product.api.domain.ProductDetails;
 
 public interface ProductDetailsMapper extends BaseMapper<ProductDetails> {
 }

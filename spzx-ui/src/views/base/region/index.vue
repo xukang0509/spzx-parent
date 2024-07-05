@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div style="padding: 20px" class="app-container">
     <el-tree :props="props" :load="loadNode" lazy />
   </div>
 </template>

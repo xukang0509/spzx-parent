@@ -1,11 +1,10 @@
 package com.spzx.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.spzx.product.api.domain.ProductSku;
-import com.spzx.product.api.domain.SkuQuery;
-import com.spzx.product.domain.Product;
+import com.spzx.product.api.domain.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商品Service接口
@@ -73,4 +72,13 @@ public interface ProductService extends IService<Product> {
 
     List<ProductSku> selectProductSkuList(SkuQuery skuQuery);
 
+    ProductSku getProductSkuBySkuId(Long skuId);
+
+    Product getProductById(Long productId);
+
+    ProductDetails getProductDetailsByProductId(Long productId);
+
+    SkuStockVo getSkuStockVoBySkuId(Long skuId);
+
+    Map<String, Long> getSkuSpecValueMapByProductId(Long productId);
 }
