@@ -1,5 +1,6 @@
 package com.spzx.user.controller;
 
+import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.utils.poi.ExcelUtil;
 import com.spzx.common.core.web.controller.BaseController;
@@ -8,14 +9,18 @@ import com.spzx.common.core.web.page.TableDataInfo;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.InnerAuth;
+import com.spzx.common.security.annotation.RequiresLogin;
 import com.spzx.common.security.annotation.RequiresPermissions;
+import com.spzx.user.api.domain.UpdateUserLogin;
 import com.spzx.user.api.domain.UserInfo;
 import com.spzx.user.domain.UserAddress;
+import com.spzx.user.domain.UserInfoVo;
 import com.spzx.user.service.UserInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,5 +74,30 @@ public class UserInfoController extends BaseController {
     public R<Boolean> register(@RequestBody UserInfo userInfo) {
         userInfoService.register(userInfo);
         return R.ok();
+    }
+
+    @Operation(summary = "更新用户登录信息")
+    @InnerAuth
+    @PutMapping("/updateUserLogin")
+    public R<Boolean> updateUserLogin(@RequestBody UpdateUserLogin updateUserLogin) {
+        return R.ok(userInfoService.updateUserLogin(updateUserLogin));
+    }
+
+    @Operation(summary = "根据用户名获取用户信息")
+    @InnerAuth
+    @GetMapping("/info/{username}")
+    public R<UserInfo> getUserInfo(@PathVariable String username) {
+        return R.ok(userInfoService.selectUserInfoByUsername(username));
+    }
+
+    @RequiresLogin
+    @Operation(summary = "获取当前登录用户信息")
+    @GetMapping("/getLoginUserInfo")
+    public AjaxResult getLoginUserInfo() {
+        Long userId = SecurityContextHolder.getUserId();
+        UserInfo userInfo = userInfoService.getById(userId);
+        UserInfoVo userInfoVo = new UserInfoVo();
+        BeanUtils.copyProperties(userInfo, userInfoVo);
+        return success(userInfoVo);
     }
 }

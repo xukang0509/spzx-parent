@@ -3,6 +3,7 @@ package com.spzx.user.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
+import com.spzx.user.api.domain.UpdateUserLogin;
 import com.spzx.user.api.domain.UserInfo;
 import com.spzx.user.domain.UserAddress;
 import com.spzx.user.mapper.UserInfoMapper;
@@ -66,6 +67,22 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfo.setAvatar("http://192.168.10.102:10001/spzx/2024/07/06/7a6ce31e8d53431a79c790d8561b3b6b_20240706103404A001.jpg");
 
         userInfoMapper.insert(userInfo);
+    }
+
+    @Override
+    public Boolean updateUserLogin(UpdateUserLogin updateUserLogin) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(updateUserLogin.getUserId());
+        userInfo.setLastLoginIp(updateUserLogin.getLastLoginIp());
+        userInfo.setLastLoginTime(updateUserLogin.getLastLoginTime());
+        userInfoMapper.updateById(userInfo);
+        return true;
+    }
+
+    @Override
+    public UserInfo selectUserInfoByUsername(String username) {
+        return userInfoMapper.selectOne(Wrappers.lambdaQuery(UserInfo.class)
+                .eq(UserInfo::getUsername, username));
     }
 
 }
