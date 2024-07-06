@@ -1,4 +1,4 @@
-package com.spzx.user.domain;
+package com.spzx.user.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -104,7 +104,7 @@ public class UserInfo extends BaseEntity {
      */
     @Excel(name = "状态", readConverterExp = "1=正常,0=禁用")
     @Schema(description = "状态：1为正常，0为禁止")
-    private Long status;
+    private Integer status;
 
     @JsonIgnore
     @JsonFormat(pattern = "yyyy-MM-dd")

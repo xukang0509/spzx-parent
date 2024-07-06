@@ -1,7 +1,7 @@
 package com.spzx.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.spzx.user.domain.UserInfo;
+import com.spzx.user.api.domain.UserInfo;
 
 import java.util.List;
 

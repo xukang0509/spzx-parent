@@ -1,8 +1,8 @@
 package com.spzx.user.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.spzx.user.api.domain.UserInfo;
 import com.spzx.user.domain.UserAddress;
-import com.spzx.user.domain.UserInfo;
 
 import java.util.List;
 
@@ -29,4 +29,11 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 会员地址集合
      */
     List<UserAddress> selectUserAddressList(Long userId);
+
+    /**
+     * 会员注册
+     *
+     * @param userInfo 会员注册信息
+     */
+    void register(UserInfo userInfo);
 }

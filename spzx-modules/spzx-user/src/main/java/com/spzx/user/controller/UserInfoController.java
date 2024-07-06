@@ -1,14 +1,16 @@
 package com.spzx.user.controller;
 
+import com.spzx.common.core.domain.R;
 import com.spzx.common.core.utils.poi.ExcelUtil;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresPermissions;
+import com.spzx.user.api.domain.UserInfo;
 import com.spzx.user.domain.UserAddress;
-import com.spzx.user.domain.UserInfo;
 import com.spzx.user.service.UserInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,5 +61,13 @@ public class UserInfoController extends BaseController {
     public AjaxResult getUserAddress(@PathVariable("userId") Long userId) {
         List<UserAddress> userAddressList = userInfoService.selectUserAddressList(userId);
         return success(userAddressList);
+    }
+
+    @Operation(summary = "会员注册")
+    @InnerAuth
+    @PostMapping("/register")
+    public R<Boolean> register(@RequestBody UserInfo userInfo) {
+        userInfoService.register(userInfo);
+        return R.ok();
     }
 }

@@ -20,25 +20,25 @@
                  left join sku_stock ss on ss.sku_id = sku.id and ss.del_flag = 0
         <where>
             sku.del_flag = 0 and p.status = 1 and p.audit_status = 1
-            <if test="keyword != null and keyword != ''">
-                and sku.sku_name like concat('%', #{keyword}, '%')
+            <if test="query.keyword != null and query.keyword != ''">
+                and sku.sku_name like concat('%', #{query.keyword}, '%')
             </if>
-            <if test="brandId != null">
-                and p.brand_id = #{brandId}
+            <if test="query.brandId != null">
+                and p.brand_id = #{query.brandId}
             </if>
-            <if test="category1Id != null">
-                and p.category1_id = #{category1Id}
+            <if test="query.category1Id != null">
+                and p.category1_id = #{query.category1Id}
             </if>
-            <if test="category2Id != null">
-                and p.category2_id = #{category2Id}
+            <if test="query.category2Id != null">
+                and p.category2_id = #{query.category2Id}
             </if>
-            <if test="category3Id != null">
-                and p.category3_id = #{category3Id}
+            <if test="query.category3Id != null">
+                and p.category3_id = #{query.category3Id}
             </if>
         </where>
-        <if test="order == 1">order by ss.sale_num desc</if>
-        <if test="order == 2">order by sku.sale_price asc</if>
-        <if test="order == 3">order by sku.sale_price desc</if>
+        <if test="query.order == 1"> order by ss.sale_num desc </if>
+        <if test="query.order == 2"> order by sku.sale_price asc </if>
+        <if test="query.order == 3"> order by sku.sale_price desc </if>
     </select>
 
     <select id="getProductSkuIdsOnSale" resultType="java.lang.Long">

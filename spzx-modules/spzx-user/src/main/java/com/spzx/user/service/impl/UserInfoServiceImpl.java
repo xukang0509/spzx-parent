@@ -2,8 +2,9 @@ package com.spzx.user.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.spzx.common.core.exception.ServiceException;
+import com.spzx.user.api.domain.UserInfo;
 import com.spzx.user.domain.UserAddress;
-import com.spzx.user.domain.UserInfo;
 import com.spzx.user.mapper.UserInfoMapper;
 import com.spzx.user.service.UserAddressService;
 import com.spzx.user.service.UserInfoService;
@@ -46,6 +47,25 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public List<UserAddress> selectUserAddressList(Long userId) {
         return userAddressService.list(Wrappers.lambdaQuery(UserAddress.class)
                 .eq(UserAddress::getUserId, userId));
+    }
+
+    /**
+     * 会员注册
+     *
+     * @param userInfo 会员注册信息
+     */
+    @Override
+    public void register(UserInfo userInfo) {
+        Long count = userInfoMapper.selectCount(Wrappers.lambdaQuery(UserInfo.class)
+                .eq(UserInfo::getUsername, userInfo.getUsername()));
+        if (count > 0) {
+            throw new ServiceException("会员手机已经存在");
+        }
+        userInfo.setStatus(1);
+        userInfo.setSex(0);
+        userInfo.setAvatar("http://192.168.10.102:10001/spzx/2024/07/06/7a6ce31e8d53431a79c790d8561b3b6b_20240706103404A001.jpg");
+
+        userInfoMapper.insert(userInfo);
     }
 
 }
