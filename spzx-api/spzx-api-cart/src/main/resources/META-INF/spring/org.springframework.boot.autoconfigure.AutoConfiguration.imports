@@ -1,0 +1,2 @@
+com.spzx.cart.api.factory.RemoteCartFallbackFactory
+com.spzx.cart.api.interceptor.CartFeignInterceptor

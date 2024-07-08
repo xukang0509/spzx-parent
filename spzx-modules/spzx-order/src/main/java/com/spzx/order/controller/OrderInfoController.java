@@ -6,6 +6,7 @@ import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.RequiresLogin;
 import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.order.domain.OrderInfo;
 import com.spzx.order.service.OrderInfoService;
@@ -97,5 +98,12 @@ public class OrderInfoController extends BaseController {
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(orderInfoService.removeBatchByIds(Arrays.asList(ids)));
+    }
+
+    @Operation(summary = "订单结算")
+    @RequiresLogin
+    @GetMapping("/trade")
+    public AjaxResult orderTradeData() {
+        return success(orderInfoService.orderTradeData());
     }
 }

@@ -13,12 +13,9 @@ import java.util.List;
  */
 public interface UserAddressService extends IService<UserAddress> {
 
-    /**
-     * 查询用户地址列表
-     *
-     * @param userAddress 用户地址
-     * @return 用户地址集合
-     */
-    public List<UserAddress> selectUserAddressList(UserAddress userAddress);
+    List<UserAddress> selectUserAddressList();
 
+    int insertUserAddress(UserAddress userAddress);
+
+    int updateUserAddress(UserAddress userAddress);
 }

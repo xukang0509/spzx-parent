@@ -78,7 +78,6 @@ public class CartServiceImpl implements CartService {
             // 3.3 将购物车商品存入redis
             hashOps.put(hashKey, cartInfo);
         }
-
     }
 
     @Override
@@ -108,6 +107,61 @@ public class CartServiceImpl implements CartService {
             return infoList;
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public void deleteCartBySkuId(Long skuId) {
+        Long userId = SecurityContextHolder.getUserId();
+        String cartKey = getCartKey(userId);
+        // 获取缓存对象
+        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        hashOps.delete(String.valueOf(skuId));
+    }
+
+    @Override
+    public void checkCart(Long skuId, Integer isChecked) {
+        Long userId = SecurityContextHolder.getUserId();
+        String cartKey = getCartKey(userId);
+        // 获取缓存对象
+        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        if (hashOps.hasKey(String.valueOf(skuId))) {
+            CartInfo cartInfo = hashOps.get(String.valueOf(skuId));
+            cartInfo.setIsChecked(isChecked);
+            hashOps.put(String.valueOf(skuId), cartInfo);
+        }
+    }
+
+    @Override
+    public void allCheckCart(Integer isChecked) {
+        Long userId = SecurityContextHolder.getUserId();
+        String cartKey = getCartKey(userId);
+        // 获取缓存对象
+        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        List<CartInfo> cartInfoList = hashOps.values();
+        cartInfoList.forEach(cartInfo -> {
+            cartInfo.setIsChecked(isChecked);
+            hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
+        });
+    }
+
+    @Override
+    public void clearCart() {
+        Long userId = SecurityContextHolder.getUserId();
+        String cartKey = getCartKey(userId);
+        redisTemplate.delete(cartKey);
+    }
+
+    @Override
+    public List<CartInfo> getCartCheckedList(Long userId) {
+        List<CartInfo> cartInfoList = new ArrayList<>();
+
+        String cartKey = getCartKey(userId);
+        List<CartInfo> cartInfoCacheList = redisTemplate.opsForHash().values(cartKey);
+        if (!CollectionUtils.isEmpty(cartInfoCacheList)) {
+            cartInfoList.addAll(cartInfoCacheList.stream()
+                    .filter(cartInfo -> cartInfo.getIsChecked() == 1).toList());
+        }
+        return cartInfoList;
     }
 
     private String getCartKey(Long userId) {
