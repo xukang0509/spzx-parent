@@ -90,4 +90,18 @@ public class CartController extends BaseController {
             @PathVariable("userId") Long userId) {
         return R.ok(cartService.getCartCheckedList(userId));
     }
+
+    @Operation(summary = "更新用户购物车列表价格")
+    @InnerAuth
+    @GetMapping("/updateCartPrice/{userId}")
+    public R<Boolean> updateCartPrice(@PathVariable("userId") Long userId) {
+        return R.ok(cartService.updateCartPrice(userId));
+    }
+
+    @Operation(summary = "删除用户购物车列表中选中商品列表")
+    @InnerAuth
+    @GetMapping("/deleteCartCheckedList/{userId}")
+    public R<Boolean> deleteCartCheckedList(@PathVariable("userId") Long userId) {
+        return R.ok(cartService.deleteCartCheckedList(userId));
+    }
 }

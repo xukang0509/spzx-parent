@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.utils.DateUtils;
-import com.spzx.user.domain.UserAddress;
+import com.spzx.user.api.domain.UserAddress;
 import com.spzx.user.mapper.UserAddressMapper;
 import com.spzx.user.service.RegionService;
 import com.spzx.user.service.UserAddressService;

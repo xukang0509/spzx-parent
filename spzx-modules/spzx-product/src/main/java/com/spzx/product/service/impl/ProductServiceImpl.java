@@ -390,4 +390,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             return skuPrice;
         }).toList();
     }
+
+    @Override
+    public SkuPrice getSkuPriceBySkuId(Long skuId) {
+        ProductSku productSku = productSkuMapper.selectOne(Wrappers.lambdaQuery(ProductSku.class)
+                .eq(ProductSku::getId, skuId)
+                .select(ProductSku::getSalePrice, ProductSku::getId, ProductSku::getMarketPrice));
+        SkuPrice skuPrice = new SkuPrice();
+        skuPrice.setSkuId(productSku.getId());
+        skuPrice.setSalePrice(productSku.getSalePrice());
+        skuPrice.setMarketPrice(productSku.getMarketPrice());
+        return skuPrice;
+    }
 }

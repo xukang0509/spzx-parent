@@ -22,6 +22,16 @@ public class RemoteCartFallbackFactory implements FallbackFactory<RemoteCartServ
             public R<List<CartInfo>> getCartCheckedList(Long userId) {
                 return R.fail("查询用户购物车列表中选中商品列表失败：" + cause.getMessage());
             }
+
+            @Override
+            public R<Boolean> updateCartPrice(Long userId) {
+                return R.fail("更新用户购物车列表价格失败：" + cause.getMessage());
+            }
+
+            @Override
+            public R<Boolean> deleteCartCheckedList(Long userId) {
+                return R.fail("删除用户购物车列表中选中商品列表失败：" + cause.getMessage());
+            }
         };
     }
 }

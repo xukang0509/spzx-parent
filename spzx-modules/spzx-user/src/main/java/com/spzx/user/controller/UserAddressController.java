@@ -1,11 +1,11 @@
 package com.spzx.user.controller;
 
+import com.spzx.common.core.domain.R;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
-import com.spzx.common.log.annotation.Log;
-import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresLogin;
-import com.spzx.user.domain.UserAddress;
+import com.spzx.user.api.domain.UserAddress;
 import com.spzx.user.service.UserAddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,7 +39,6 @@ public class UserAddressController extends BaseController {
      * 新增用户地址
      */
     @Operation(summary = "新增用户地址")
-    @Log(title = "用户地址", businessType = BusinessType.INSERT)
     @RequiresLogin
     @PostMapping
     public AjaxResult add(@RequestBody UserAddress userAddress) {
@@ -50,7 +49,6 @@ public class UserAddressController extends BaseController {
      * 修改用户地址
      */
     @Operation(summary = "修改用户地址")
-    @Log(title = "用户地址", businessType = BusinessType.UPDATE)
     @RequiresLogin
     @PutMapping
     public AjaxResult edit(@RequestBody UserAddress userAddress) {
@@ -61,10 +59,16 @@ public class UserAddressController extends BaseController {
      * 删除用户地址
      */
     @Operation(summary = "删除用户地址")
-    @Log(title = "用户地址", businessType = BusinessType.DELETE)
     @RequiresLogin
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) {
         return toAjax(userAddressService.removeById(id));
+    }
+
+    @Operation(summary = "查询用户地址信息")
+    @InnerAuth
+    @GetMapping("/getUserAddress/{id}")
+    public R<UserAddress> getUserAddress(@PathVariable("id") Long id) {
+        return R.ok(userAddressService.getById(id));
     }
 }

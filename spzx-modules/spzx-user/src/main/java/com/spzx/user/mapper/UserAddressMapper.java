@@ -1,7 +1,7 @@
 package com.spzx.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.spzx.user.domain.UserAddress;
+import com.spzx.user.api.domain.UserAddress;
 
 /**
  * 用户地址Mapper接口

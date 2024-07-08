@@ -83,4 +83,6 @@ public interface ProductService extends IService<Product> {
     Map<String, Long> getSkuSpecValueMapByProductId(Long productId);
 
     List<SkuPrice> getSkuPriceListBySkuIds(List<Long> skuIds);
+
+    SkuPrice getSkuPriceBySkuId(Long skuId);
 }

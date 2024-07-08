@@ -30,7 +30,7 @@ public class RegionServiceImpl extends ServiceImpl<RegionMapper, Region> impleme
 
     @Override
     public String getNameByCode(String code) {
-        if (StringUtils.hasText(code)) return "";
+        if (!StringUtils.hasText(code)) return "";
         Region region = regionMapper.selectOne(Wrappers.lambdaQuery(Region.class)
                 .eq(Region::getCode, code).select(Region::getName));
         return region.getName() == null ? "" : region.getName();

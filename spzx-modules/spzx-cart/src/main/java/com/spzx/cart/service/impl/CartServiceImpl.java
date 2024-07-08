@@ -164,6 +164,43 @@ public class CartServiceImpl implements CartService {
         return cartInfoList;
     }
 
+    @Override
+    public Boolean updateCartPrice(Long userId) {
+        String cartKey = getCartKey(userId);
+        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        List<CartInfo> cartInfoList = hashOps.values();
+        if (!CollectionUtils.isEmpty(cartInfoList)) {
+            for (CartInfo cartInfo : cartInfoList) {
+                if (cartInfo.getIsChecked() == 1) {
+                    R<SkuPrice> skuPriceRes = remoteProductService.getSkuPrice(cartInfo.getSkuId());
+                    if (R.FAIL == skuPriceRes.getCode()) {
+                        throw new ServiceException(skuPriceRes.getMsg());
+                    }
+                    SkuPrice skuPrice = skuPriceRes.getData();
+                    cartInfo.setCartPrice(skuPrice.getSalePrice());
+                    cartInfo.setSkuPrice(skuPrice.getSalePrice());
+                    hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean deleteCartCheckedList(Long userId) {
+        String cartKey = getCartKey(userId);
+        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        List<CartInfo> cartInfoList = hashOps.values();
+        if (!CollectionUtils.isEmpty(cartInfoList)) {
+            for (CartInfo cartInfo : cartInfoList) {
+                if (cartInfo.getIsChecked() == 1) {
+                    hashOps.delete(cartInfo.getSkuId().toString());
+                }
+            }
+        }
+        return true;
+    }
+
     private String getCartKey(Long userId) {
         return "user:cart:" + userId;
     }

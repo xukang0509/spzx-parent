@@ -8,6 +8,7 @@ import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
 import com.spzx.common.security.annotation.RequiresLogin;
 import com.spzx.common.security.annotation.RequiresPermissions;
+import com.spzx.order.domain.OrderForm;
 import com.spzx.order.domain.OrderInfo;
 import com.spzx.order.service.OrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -105,5 +106,12 @@ public class OrderInfoController extends BaseController {
     @GetMapping("/trade")
     public AjaxResult orderTradeData() {
         return success(orderInfoService.orderTradeData());
+    }
+
+    @Operation(summary = "用户提交订单")
+    @RequiresLogin
+    @PostMapping("/submitOrder")
+    public AjaxResult submitOrder(@RequestBody OrderForm orderForm) {
+        return success(orderInfoService.submitOrder(orderForm));
     }
 }

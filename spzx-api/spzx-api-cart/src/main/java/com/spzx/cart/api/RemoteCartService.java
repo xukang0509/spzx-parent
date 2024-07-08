@@ -18,4 +18,10 @@ import java.util.List;
 public interface RemoteCartService {
     @GetMapping("/getCartCheckedList/{userId}")
     R<List<CartInfo>> getCartCheckedList(@PathVariable("userId") Long userId);
+
+    @GetMapping("/updateCartPrice/{userId}")
+    R<Boolean> updateCartPrice(@PathVariable("userId") Long userId);
+
+    @GetMapping("/deleteCartCheckedList/{userId}")
+    R<Boolean> deleteCartCheckedList(@PathVariable("userId") Long userId);
 }

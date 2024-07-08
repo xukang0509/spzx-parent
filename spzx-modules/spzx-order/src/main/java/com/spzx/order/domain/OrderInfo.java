@@ -84,7 +84,7 @@ public class OrderInfo extends BaseEntity {
      */
     @Excel(name = "订单状态", readConverterExp = "0=待付款,1=待发货,2=已发货,3=完成,-1=已取消")
     @Schema(description = "订单状态【0->待付款；1->待发货；2->已发货；3->待用户收货，已完成；-1->已取消】")
-    private Long orderStatus;
+    private Integer orderStatus;
 
     /**
      * 收货人姓名

@@ -43,4 +43,7 @@ public interface RemoteProductService {
 
     @PostMapping("/product/getSkuPriceList")
     R<List<SkuPrice>> getSkuPriceList(@RequestBody List<Long> skuIds);
+
+    @GetMapping("/product/getSkuPrice/{skuId}")
+    R<SkuPrice> getSkuPrice(@PathVariable("skuId") Long skuId);
 }

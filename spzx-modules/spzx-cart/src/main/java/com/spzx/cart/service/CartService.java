@@ -49,4 +49,8 @@ public interface CartService {
 
 
     List<CartInfo> getCartCheckedList(Long userId);
+
+    Boolean updateCartPrice(Long userId);
+
+    Boolean deleteCartCheckedList(Long userId);
 }
