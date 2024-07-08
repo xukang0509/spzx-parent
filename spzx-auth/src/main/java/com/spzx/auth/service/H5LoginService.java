@@ -56,7 +56,7 @@ public class H5LoginService {
                 password.length() > UserConstants.PASSWORD_MAX_LENGTH) {
             throw new ServiceException("密码长度必须在5到20个字符之间");
         }
-        if (StringUtils.isEmpty(code)) {
+        if (StringUtils.hasText(code)) {
             throw new ServiceException("验证码必须填写");
         }
         String codeValue = stringRedisTemplate.opsForValue().get("phone:code:" + username);

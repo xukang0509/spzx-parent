@@ -38,7 +38,7 @@ public class SmsController extends BaseController {
         String code = new DecimalFormat("0000").format(new Random().nextInt(10000));
         String key = "phone:code:" + phone;
         stringRedisTemplate.opsForValue().set(key, code, 5, TimeUnit.MINUTES);
-        log.info("{}: {}", phone, code);
+        log.info("手机号：{}，验证码：{}", phone, code);
         Map<String, Object> params = new HashMap<>();
         params.put("code", code);
         smsService.send(phone, "", params);

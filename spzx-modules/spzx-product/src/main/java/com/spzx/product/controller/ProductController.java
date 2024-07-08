@@ -143,4 +143,11 @@ public class ProductController extends BaseController {
     public R<Map<String, Long>> getSkuSpecValueMap(@PathVariable Long productId) {
         return R.ok(productService.getSkuSpecValueMapByProductId(productId));
     }
+
+    @Operation(summary = "批量获取商品sku最新价格信息")
+    @InnerAuth
+    @PostMapping("getSkuPriceList")
+    public R<List<SkuPrice>> getSkuPriceList(@RequestBody List<Long> skuIds) {
+        return R.ok(productService.getSkuPriceListBySkuIds(skuIds));
+    }
 }

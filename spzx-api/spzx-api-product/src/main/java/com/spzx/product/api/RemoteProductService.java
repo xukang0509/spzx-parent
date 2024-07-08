@@ -9,6 +9,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Map;
@@ -38,4 +40,7 @@ public interface RemoteProductService {
 
     @GetMapping("/product/getSkuSpecValue/{productId}")
     R<Map<String, Long>> getSkuSpecValueMap(@PathVariable("productId") Long productId);
+
+    @PostMapping("/product/getSkuPriceList")
+    R<List<SkuPrice>> getSkuPriceList(@RequestBody List<Long> skuIds);
 }

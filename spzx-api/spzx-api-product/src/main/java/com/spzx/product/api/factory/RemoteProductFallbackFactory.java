@@ -57,6 +57,11 @@ public class RemoteProductFallbackFactory implements FallbackFactory<RemoteProdu
             public R<Map<String, Long>> getSkuSpecValueMap(Long productId) {
                 return R.fail("获取商品sku规则详细信息失败：" + cause.getMessage());
             }
+
+            @Override
+            public R<List<SkuPrice>> getSkuPriceList(List<Long> skuIds) {
+                return R.fail("批量获取商品sku最新价格信息失败：" + cause.getMessage());
+            }
         };
     }
 }
