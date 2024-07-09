@@ -245,7 +245,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             // sku加入布隆过滤器
             RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter("sku:bloom:filter");
             List<ProductSku> productSkuList = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
-                    .eq(ProductSku::getProductId, id));
+                    .eq(ProductSku::getProductId, id).select(ProductSku::getId));
             productSkuList.forEach(item -> bloomFilter.add(item.getId()));
         } else {
             product.setStatus(-1);

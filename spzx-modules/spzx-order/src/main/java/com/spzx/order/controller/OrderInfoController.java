@@ -1,5 +1,7 @@
 package com.spzx.order.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.spzx.common.core.utils.poi.ExcelUtil;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
@@ -113,5 +115,29 @@ public class OrderInfoController extends BaseController {
     @PostMapping("/submitOrder")
     public AjaxResult submitOrder(@RequestBody OrderForm orderForm) {
         return success(orderInfoService.submitOrder(orderForm));
+    }
+
+    @Operation(summary = "立即购买")
+    @RequiresLogin
+    @GetMapping("/buy/{skuId}")
+    public AjaxResult buyNow(@PathVariable Long skuId) {
+        return success(orderInfoService.buyNow(skuId));
+    }
+
+    @Operation(summary = "获取订单信息")
+    @RequiresLogin
+    @GetMapping("/getOrderInfo/{orderId}")
+    public AjaxResult getOrderInfoByH5(@PathVariable Long orderId) {
+        return success(orderInfoService.selectOrderInfoById(orderId));
+    }
+
+    @Operation(summary = "获取订单列表")
+    @RequiresLogin
+    @GetMapping("/userOrderInfoList/{pageNum}/{pageSize}")
+    public TableDataInfo userOrderInfoList(@PathVariable Integer pageNum, @PathVariable Integer pageSize,
+                                           @RequestParam(required = false, defaultValue = "") Integer orderStatus) {
+        Page<OrderInfo> pageParam = new Page<>(pageNum, pageSize);
+        IPage<OrderInfo> iPage = orderInfoService.userOrderInfoList(pageParam, orderStatus);
+        return getDataTable(iPage);
     }
 }

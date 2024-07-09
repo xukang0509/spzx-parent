@@ -5,7 +5,6 @@ import com.spzx.cart.service.CartService;
 import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
-import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.api.RemoteProductService;
 import com.spzx.product.api.domain.ProductSku;
 import com.spzx.product.api.domain.SkuPrice;
@@ -60,9 +59,9 @@ public class CartServiceImpl implements CartService {
             cartInfo.setUserId(userId);
             cartInfo.setSkuNum(skuNum > threadHold ? threadHold : skuNum);
             cartInfo.setCreateTime(new Date());
-            cartInfo.setCreateBy(SecurityUtils.getUsername());
+            cartInfo.setCreateBy(SecurityContextHolder.getUserName());
             cartInfo.setUpdateTime(new Date());
-            cartInfo.setUpdateBy(SecurityUtils.getUsername());
+            cartInfo.setUpdateBy(SecurityContextHolder.getUserName());
             // 3.2.1 远程调用商品服务获取商品sku基本信息
             R<ProductSku> productSkuRes = remoteProductService.getProductSku(skuId);
             if (productSkuRes.getCode() == R.FAIL) {
@@ -138,10 +137,12 @@ public class CartServiceImpl implements CartService {
         // 获取缓存对象
         BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
         List<CartInfo> cartInfoList = hashOps.values();
-        cartInfoList.forEach(cartInfo -> {
-            cartInfo.setIsChecked(isChecked);
-            hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
-        });
+        if (!CollectionUtils.isEmpty(cartInfoList)) {
+            cartInfoList.forEach(cartInfo -> {
+                cartInfo.setIsChecked(isChecked);
+                hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
+            });
+        }
     }
 
     @Override

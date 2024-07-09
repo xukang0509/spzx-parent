@@ -1,5 +1,7 @@
 package com.spzx.order.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.spzx.order.domain.OrderForm;
 import com.spzx.order.domain.OrderInfo;
@@ -34,4 +36,8 @@ public interface OrderInfoService extends IService<OrderInfo> {
     TradeVo orderTradeData();
 
     Long submitOrder(OrderForm orderForm);
+
+    TradeVo buyNow(Long skuId);
+
+    IPage<OrderInfo> userOrderInfoList(Page<OrderInfo> pageParam, Integer orderStatus);
 }

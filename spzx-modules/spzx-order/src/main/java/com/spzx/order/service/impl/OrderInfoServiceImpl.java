@@ -1,6 +1,9 @@
 package com.spzx.order.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.cart.api.RemoteCartService;
 import com.spzx.cart.api.domain.CartInfo;
@@ -14,6 +17,7 @@ import com.spzx.order.mapper.OrderItemMapper;
 import com.spzx.order.mapper.OrderLogMapper;
 import com.spzx.order.service.OrderInfoService;
 import com.spzx.product.api.RemoteProductService;
+import com.spzx.product.api.domain.ProductSku;
 import com.spzx.product.api.domain.SkuPrice;
 import com.spzx.user.api.RemoteUserAddressService;
 import com.spzx.user.api.domain.UserAddress;
@@ -93,13 +97,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new ServiceException("购物车无选中商品");
         }
         // 将集合泛型从购物车改为订单明细
-        BigDecimal totalAmount = new BigDecimal(0);
         List<OrderItem> orderItemList = cartInfoList.stream().map(cartInfo -> {
             OrderItem orderItem = new OrderItem();
             BeanUtils.copyProperties(cartInfo, orderItem);
             return orderItem;
         }).toList();
         // 订单总金额
+        BigDecimal totalAmount = new BigDecimal(0);
         for (OrderItem orderItem : orderItemList) {
             totalAmount = totalAmount.add(orderItem.getSkuPrice().multiply(new BigDecimal(orderItem.getSkuNum())));
         }
@@ -111,6 +115,53 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         tradeVo.setTotalAmount(totalAmount);
         tradeVo.setOrderItemList(orderItemList);
         return tradeVo;
+    }
+
+    @Override
+    public TradeVo buyNow(Long skuId) {
+        Long userId = SecurityContextHolder.getUserId();
+        R<ProductSku> productSkuRes = remoteProductService.getProductSku(skuId);
+        if (productSkuRes.getCode() == R.FAIL) {
+            throw new ServiceException(productSkuRes.getMsg());
+        }
+        ProductSku productSku = productSkuRes.getData();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setSkuId(skuId);
+        orderItem.setSkuName(productSku.getSkuName());
+        orderItem.setThumbImg(productSku.getThumbImg());
+        orderItem.setSkuPrice(productSku.getSalePrice());
+        orderItem.setSkuNum(1);
+
+        BigDecimal totalAmount = productSku.getSalePrice();
+        String tradeNo = generateTradeNo(userId);
+
+        TradeVo tradeVo = new TradeVo();
+        tradeVo.setTradeNo(tradeNo);
+        tradeVo.setTotalAmount(totalAmount);
+        tradeVo.setOrderItemList(Arrays.asList(orderItem));
+
+        return tradeVo;
+    }
+
+    @Override
+    public IPage<OrderInfo> userOrderInfoList(Page<OrderInfo> pageParam, Integer orderStatus) {
+        Long userId = SecurityContextHolder.getUserId();
+        LambdaQueryWrapper<OrderInfo> queryWrapper = Wrappers.lambdaQuery(OrderInfo.class)
+                .eq(userId != null, OrderInfo::getUserId, userId)
+                .eq(orderStatus != null, OrderInfo::getOrderStatus, orderStatus);
+        Page<OrderInfo> orderInfoPage = orderInfoMapper.selectPage(pageParam, queryWrapper);
+        List<OrderInfo> orderInfoList = orderInfoPage.getRecords();
+        if (!CollectionUtils.isEmpty(orderInfoList)) {
+            List<Long> orderIdList = orderInfoList.stream().map(OrderInfo::getId).toList();
+            List<OrderItem> orderItemList = orderItemMapper.selectList(Wrappers.lambdaQuery(OrderItem.class)
+                    .in(OrderItem::getOrderId, orderIdList));
+            Map<Long, List<OrderItem>> orderIdToOrderItemMap =
+                    orderItemList.stream().collect(Collectors.groupingBy(OrderItem::getOrderId));
+            orderInfoList.forEach(orderInfo -> {
+                orderInfo.setOrderItemList(orderIdToOrderItemMap.get(orderInfo.getId()));
+            });
+        }
+        return orderInfoPage;
     }
 
 
@@ -130,9 +181,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 else
                     return 0
                 end""";
-        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-        redisScript.setResultType(Long.class);
-        redisScript.setScriptText(scriptText);
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>(scriptText, Long.class);
         Long flag = (Long) redisTemplate.execute(redisScript, Arrays.asList(userTradeKey), orderForm.getTradeNo());
         if (flag == 0) {
             throw new ServiceException("请勿重复提交订单，请尝试重试");

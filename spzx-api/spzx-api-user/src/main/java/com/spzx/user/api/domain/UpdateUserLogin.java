@@ -7,6 +7,9 @@ import java.util.Date;
 
 @Data
 public class UpdateUserLogin {
+    /**
+     * 会员ID
+     */
     private Long userId;
 
     /**

@@ -36,6 +36,7 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
     @Override
     public int insertUserAddress(UserAddress userAddress) {
         userAddress.setUserId(SecurityContextHolder.getUserId());
+        userAddress.setCreateBy(SecurityContextHolder.getUserName());
         userAddress.setCreateTime(DateUtils.getNowDate());
 
         String provinceName = regionService.getNameByCode(userAddress.getProvinceCode());
@@ -58,6 +59,7 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
     public int updateUserAddress(UserAddress userAddress) {
         userAddress.setUserId(SecurityContextHolder.getUserId());
         userAddress.setUpdateTime(DateUtils.getNowDate());
+        userAddress.setUpdateBy(SecurityContextHolder.getUserName());
 
         String provinceName = regionService.getNameByCode(userAddress.getProvinceCode());
         String cityName = regionService.getNameByCode(userAddress.getCityCode());

@@ -68,7 +68,7 @@ public class H5LoginService {
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(username);
         userInfo.setPhone(username);
-        nickName = StringUtils.isEmpty(nickName) ? username : nickName;
+        nickName = StringUtils.hasText(nickName) ? nickName : username;
         userInfo.setNickName(nickName);
         userInfo.setPassword(SecurityUtils.encryptPassword(password));
 
@@ -115,7 +115,7 @@ public class H5LoginService {
         loginUser.setUsername(userInfo.getUsername());
         loginUser.setPassword(userInfo.getPassword());
         loginUser.setStatus(userInfo.getStatus() + "");
-        if (UserStatus.DISABLE.getCode().equals(userInfo.getStatus())) {
+        if (UserStatus.DISABLE.getCode().equals(loginUser.getStatus())) {
             recordLogService.recordLogininfor(username, Constants.LOGIN_FAIL, "用户已停用，请联系管理员");
             throw new ServiceException("对不起，您的账号：" + username + " 已停用");
         }
