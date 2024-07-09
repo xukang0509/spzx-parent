@@ -1,4 +1,4 @@
-package com.spzx.channel.configure;
+package com.spzx.common.core.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -173,7 +173,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         // 1.验证用户是否通过浏览器回退进行重复提交订单
         // 采用LUA脚本保证判断删除流水号原子性 KEYS[1]：流水号key；ARGV[1]：用户流水号
-        String userTradeKey = "user:tradeNo" + userId;
+        String userTradeKey = "user:tradeNo:" + userId;
         String scriptText = """
                 if redis.call("get", KEYS[1]) == ARGV[1]
                 then
@@ -291,7 +291,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      * @return
      */
     private Boolean checkTradeNo(String userId, String tradeNo) {
-        String userTradeKey = "user:tradeNo" + userId;
+        String userTradeKey = "user:tradeNo:" + userId;
         String cacheTradeNo = (String) redisTemplate.opsForValue().get(userTradeKey);
         return tradeNo.equals(cacheTradeNo);
     }
@@ -302,7 +302,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      * @param userId
      */
     private void deleteTradeNo(String userId) {
-        String userTradeKey = "user:tradeNo" + userId;
+        String userTradeKey = "user:tradeNo:" + userId;
         redisTemplate.delete(userTradeKey);
     }
 
@@ -314,7 +314,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     private String generateTradeNo(Long userId) {
         // 1、构建流水号Key
-        String userTradeKey = "user:tradeNo" + userId;
+        String userTradeKey = "user:tradeNo:" + userId;
         // 2、构建流水号value
         String tradeNo = UUID.randomUUID().toString().replaceAll("-", "");
         // 3、将流水号存入Redis 暂存5分钟

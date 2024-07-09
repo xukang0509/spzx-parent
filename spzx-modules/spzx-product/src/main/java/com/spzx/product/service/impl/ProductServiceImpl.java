@@ -267,20 +267,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return productSkuMapper.selectProductSkuList(skuQuery);
     }
 
-    @RedisCache(prefix = "product:")
+    @RedisCache(prefix = "item:product:")
     @Override
     public Product getProductById(Long productId) {
         return productMapper.selectById(productId);
     }
 
-    @RedisCache(prefix = "product:details:")
+    @RedisCache(prefix = "item:product:details:")
     @Override
     public ProductDetails getProductDetailsByProductId(Long productId) {
         return productDetailsMapper.selectOne(Wrappers.lambdaQuery(ProductDetails.class)
                 .eq(ProductDetails::getProductId, productId));
     }
 
-    @RedisCache(prefix = "sku:stockVo:")
+    @RedisCache(prefix = "item:sku:stockVo:")
     @Override
     public SkuStockVo getSkuStockVoBySkuId(Long skuId) {
         SkuStock skuStock = skuStockMapper.selectOne(Wrappers.lambdaQuery(SkuStock.class)
@@ -291,7 +291,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return skuStockVo;
     }
 
-    @RedisCache(prefix = "sku:specValue:")
+    @RedisCache(prefix = "item:sku:specValue:")
     @Override
     public Map<String, Long> getSkuSpecValueMapByProductId(Long productId) {
         List<ProductSku> productSkus = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
@@ -315,7 +315,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         try {
             // 1.优先从缓存中获取数据
             // 1.1 构建业务数据key 形式：前缀+业务唯一标识
-            String dataKey = "product:sku:" + skuId;
+            String dataKey = "item:product:sku:" + skuId;
             // 1.2 查询Redis获取业务数据
             ProductSku productSku = (ProductSku) redisTemplate.opsForValue().get(dataKey);
             // 1.3 命中缓存则直接返回
@@ -327,7 +327,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
             // 2.尝试获取分布式锁(set k v ex nx 可能获取锁失败)
             // 2.1 构建锁key
-            String lockKey = "product:sku:lock:" + skuId;
+            String lockKey = "lock:item:product:sku:" + skuId;
             // 2.2 使用uuid作为线程标识
             String lockValue = UUID.randomUUID().toString();
             // 2.3 使用Redis提供set nx ex 获取分布式锁

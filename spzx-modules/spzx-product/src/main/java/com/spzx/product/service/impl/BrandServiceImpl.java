@@ -1,6 +1,7 @@
 package com.spzx.product.service.impl;
 
 import com.spzx.common.core.constant.UserConstants;
+import com.spzx.common.redis.cache.RedisCache;
 import com.spzx.common.security.utils.SecurityUtils;
 import com.spzx.product.api.domain.BrandVo;
 import com.spzx.product.domain.Brand;
@@ -102,6 +103,7 @@ public class BrandServiceImpl implements BrandService {
         return UserConstants.UNIQUE;
     }
 
+    @RedisCache(prefix = "channel.brand.all")
     @Override
     public List<BrandVo> selectAllBrandVo() {
         List<Brand> brandList = brandMapper.selectBrandList(null);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
+import com.spzx.common.redis.cache.RedisCache;
 import com.spzx.product.api.domain.CategoryVo;
 import com.spzx.product.domain.Category;
 import com.spzx.product.handler.CategoryExcelListener;
@@ -128,6 +129,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return this.count(queryWrapper) > 0;
     }
 
+    @RedisCache(prefix = "channel.index.category.one")
     @Override
     public List<CategoryVo> getOneCategory() {
         List<Category> categoryList = categoryMapper.selectList(Wrappers.lambdaQuery(Category.class)
@@ -139,6 +141,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         }).toList();
     }
 
+    @RedisCache(prefix = "channel.category.tree.list")
     @Override
     public List<CategoryVo> treeCategory() {
         List<Category> categoryList = categoryMapper.selectList(null);
