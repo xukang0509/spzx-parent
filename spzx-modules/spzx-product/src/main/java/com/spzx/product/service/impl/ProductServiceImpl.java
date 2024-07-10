@@ -380,7 +380,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public List<SkuPrice> getSkuPriceListBySkuIds(List<Long> skuIds) {
         List<ProductSku> productSkuList = productSkuMapper.selectList(Wrappers.lambdaQuery(ProductSku.class)
-                .in(ProductSku::getId, skuIds)
+                .in(!CollectionUtils.isEmpty(skuIds), ProductSku::getId, skuIds)
                 .select(ProductSku::getSalePrice, ProductSku::getId, ProductSku::getMarketPrice));
         return productSkuList.stream().map(productSku -> {
             SkuPrice skuPrice = new SkuPrice();

@@ -19,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -70,38 +69,6 @@ public class OrderInfoController extends BaseController {
         return success(orderInfoService.selectOrderInfoById(id));
     }
 
-    /**
-     * 新增订单
-     */
-    @Operation(summary = "新增订单")
-    @RequiresPermissions("order:orderInfo:add")
-    @Log(title = "订单", businessType = BusinessType.INSERT)
-    @PostMapping
-    public AjaxResult add(@RequestBody OrderInfo orderInfo) {
-        return toAjax(orderInfoService.save(orderInfo));
-    }
-
-    /**
-     * 修改订单
-     */
-    @Operation(summary = "修改订单")
-    @RequiresPermissions("order:orderInfo:edit")
-    @Log(title = "订单", businessType = BusinessType.UPDATE)
-    @PutMapping
-    public AjaxResult edit(@RequestBody OrderInfo orderInfo) {
-        return toAjax(orderInfoService.updateById(orderInfo));
-    }
-
-    /**
-     * 删除订单
-     */
-    @Operation(summary = "删除订单")
-    @RequiresPermissions("order:orderInfo:remove")
-    @Log(title = "订单", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids) {
-        return toAjax(orderInfoService.removeBatchByIds(Arrays.asList(ids)));
-    }
 
     @Operation(summary = "订单结算")
     @RequiresLogin
@@ -139,5 +106,13 @@ public class OrderInfoController extends BaseController {
         Page<OrderInfo> pageParam = new Page<>(pageNum, pageSize);
         IPage<OrderInfo> iPage = orderInfoService.userOrderInfoList(pageParam, orderStatus);
         return getDataTable(iPage);
+    }
+
+    @Operation(summary = "取消订单")
+    @RequiresLogin
+    @GetMapping("/cancelOrder/{orderId}")
+    public AjaxResult cancelOrder(@PathVariable Long orderId) {
+        orderInfoService.cancelOrder(orderId);
+        return success();
     }
 }

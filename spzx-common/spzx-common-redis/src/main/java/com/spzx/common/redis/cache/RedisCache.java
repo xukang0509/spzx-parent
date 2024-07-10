@@ -18,20 +18,20 @@ public @interface RedisCache {
     String prefix() default "data";
 
     /**
-     * 是否存储空值
+     * 是否存储空值，默认true
      */
     boolean isSaveNull() default true;
 
     /**
-     * 存储空值的缓存时间，单位秒
+     * 存储空值的缓存时间，单位秒，默认60秒
      */
     long saveNullValueTime() default 60L;
 
     /**
-     * 存储非空数据的缓存时间，单位秒
+     * 存储非空数据的缓存时间，单位秒，默认600秒
      */
     long saveNonNullValueTime() default 600L;
-    
+
     /**
      * 分布式锁的过期时间，默认5s
      */

@@ -11,6 +11,8 @@ import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.StringUtils;
+import com.spzx.common.rabbit.constant.MqConst;
+import com.spzx.common.rabbit.service.RabbitService;
 import com.spzx.order.domain.*;
 import com.spzx.order.mapper.OrderInfoMapper;
 import com.spzx.order.mapper.OrderItemMapper;
@@ -30,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Resource
     private OrderLogMapper orderLogMapper;
+
+    @Resource
+    private RabbitService rabbitService;
 
     /**
      * 查询订单列表
@@ -164,6 +166,43 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderInfoPage;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void processCloseOrder(Long orderId) {
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        if (orderInfo != null && orderInfo.getOrderStatus() == 0) {
+            orderInfo.setOrderStatus(-1);
+            orderInfo.setCancelTime(new Date());
+            orderInfo.setCancelReason("未支付自动取消");
+            orderInfoMapper.updateById(orderInfo);
+
+            // 记录日志
+            OrderLog orderLog = new OrderLog();
+            orderLog.setOrderId(orderInfo.getId());
+            orderLog.setProcessStatus(-1);
+            orderLog.setNote("系统取消订单");
+            orderLogMapper.insert(orderLog);
+        }
+    }
+
+    @Override
+    public void cancelOrder(Long orderId) {
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        if (null != orderInfo && orderInfo.getOrderStatus() == 0) {
+            orderInfo.setOrderStatus(-1);
+            orderInfo.setCancelTime(new Date());
+            orderInfo.setCancelReason("用户取消订单");
+            orderInfoMapper.updateById(orderInfo);
+            //记录日志
+            OrderLog orderLog = new OrderLog();
+            orderLog.setOrderId(orderInfo.getId());
+            orderLog.setProcessStatus(-1);
+            orderLog.setNote("用户取消订单");
+            orderLogMapper.insert(orderLog);
+            //发送MQ消息通知商品系统解锁库存
+            rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.QUEUE_UNLOCK, orderInfo.getOrderNo());
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -229,6 +268,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
         // 删除购物车选项
         remoteCartService.deleteCartCheckedList(userId);
+
+        // 发送延迟消息，取消订单
+        rabbitService.sendDelayMessage(
+                MqConst.EXCHANGE_CANCEL_ORDER,
+                MqConst.ROUTING_CANCEL_ORDER,
+                String.valueOf(orderId),
+                MqConst.CANCEL_ORDER_DELAY_TIME);
+
         return orderId;
     }
 

@@ -40,4 +40,9 @@ public interface OrderInfoService extends IService<OrderInfo> {
     TradeVo buyNow(Long skuId);
 
     IPage<OrderInfo> userOrderInfoList(Page<OrderInfo> pageParam, Integer orderStatus);
+
+    void processCloseOrder(Long orderId);
+
+    void cancelOrder(Long orderId);
+
 }

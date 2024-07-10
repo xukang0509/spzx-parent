@@ -5,7 +5,6 @@ import com.spzx.common.core.constant.CacheConstants;
 import com.spzx.common.core.constant.Constants;
 import com.spzx.common.core.constant.UserConstants;
 import com.spzx.common.core.domain.R;
-import com.spzx.common.core.enums.UserStatus;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.text.Convert;
 import com.spzx.common.core.utils.StringUtils;
@@ -114,8 +113,8 @@ public class H5LoginService {
         loginUser.setUserid(userInfo.getId());
         loginUser.setUsername(userInfo.getUsername());
         loginUser.setPassword(userInfo.getPassword());
-        loginUser.setStatus(userInfo.getStatus() + "");
-        if (UserStatus.DISABLE.getCode().equals(loginUser.getStatus())) {
+        loginUser.setStatus(userInfo.getStatus().toString());
+        if ("0".equals(loginUser.getStatus())) {
             recordLogService.recordLogininfor(username, Constants.LOGIN_FAIL, "用户已停用，请联系管理员");
             throw new ServiceException("对不起，您的账号：" + username + " 已停用");
         }
