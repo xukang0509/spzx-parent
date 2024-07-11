@@ -20,6 +20,7 @@ import com.spzx.order.mapper.OrderLogMapper;
 import com.spzx.order.service.OrderInfoService;
 import com.spzx.product.api.RemoteProductService;
 import com.spzx.product.api.domain.ProductSku;
+import com.spzx.product.api.domain.SkuLockVo;
 import com.spzx.product.api.domain.SkuPrice;
 import com.spzx.user.api.RemoteUserAddressService;
 import com.spzx.user.api.domain.UserAddress;
@@ -150,7 +151,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         Long userId = SecurityContextHolder.getUserId();
         LambdaQueryWrapper<OrderInfo> queryWrapper = Wrappers.lambdaQuery(OrderInfo.class)
                 .eq(userId != null, OrderInfo::getUserId, userId)
-                .eq(orderStatus != null, OrderInfo::getOrderStatus, orderStatus);
+                .eq(orderStatus != null, OrderInfo::getOrderStatus, orderStatus)
+                .orderByDesc(OrderInfo::getCreateTime);
         Page<OrderInfo> orderInfoPage = orderInfoMapper.selectPage(pageParam, queryWrapper);
         List<OrderInfo> orderInfoList = orderInfoPage.getRecords();
         if (!CollectionUtils.isEmpty(orderInfoList)) {
@@ -166,6 +168,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderInfoPage;
     }
 
+    // 系统取消订单
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void processCloseOrder(Long orderId) {
@@ -174,6 +177,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderInfo.setOrderStatus(-1);
             orderInfo.setCancelTime(new Date());
             orderInfo.setCancelReason("未支付自动取消");
+            orderInfo.setUpdateTime(new Date());
+            orderInfo.setUpdateBy(SecurityContextHolder.getUserName());
             orderInfoMapper.updateById(orderInfo);
 
             // 记录日志
@@ -181,10 +186,16 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderLog.setOrderId(orderInfo.getId());
             orderLog.setProcessStatus(-1);
             orderLog.setNote("系统取消订单");
+            orderLog.setCreateBy(SecurityContextHolder.getUserName());
+            orderLog.setCreateTime(new Date());
             orderLogMapper.insert(orderLog);
+
+            // 发送MQ消息通知商品系统解锁库存
+            rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.ROUTING_UNLOCK, orderInfo.getOrderNo());
         }
     }
 
+    // 用户手动取消订单
     @Override
     public void cancelOrder(Long orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
@@ -192,12 +203,17 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderInfo.setOrderStatus(-1);
             orderInfo.setCancelTime(new Date());
             orderInfo.setCancelReason("用户取消订单");
+            orderInfo.setUpdateTime(new Date());
+            orderInfo.setUpdateBy(SecurityContextHolder.getUserName());
             orderInfoMapper.updateById(orderInfo);
+
             //记录日志
             OrderLog orderLog = new OrderLog();
             orderLog.setOrderId(orderInfo.getId());
             orderLog.setProcessStatus(-1);
             orderLog.setNote("用户取消订单");
+            orderLog.setCreateBy(SecurityContextHolder.getUserName());
+            orderLog.setCreateTime(new Date());
             orderLogMapper.insert(orderLog);
             //发送MQ消息通知商品系统解锁库存
             rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.QUEUE_UNLOCK, orderInfo.getOrderNo());
@@ -255,7 +271,20 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
         // 3.2 校验库存并锁定库存
-        // TODO
+        List<SkuLockVo> skuLockVoList = orderItemList.stream().map(orderItem -> {
+            SkuLockVo skuLockVo = new SkuLockVo();
+            skuLockVo.setSkuId(orderItem.getSkuId());
+            skuLockVo.setSkuNum(orderItem.getSkuNum());
+            return skuLockVo;
+        }).toList();
+        R<String> checkAndLockRes = remoteProductService.checkAndLock(orderForm.getTradeNo(), skuLockVoList);
+        if (R.FAIL == checkAndLockRes.getCode()) {
+            throw new ServiceException(checkAndLockRes.getMsg());
+        }
+        String checkAndLockStr = checkAndLockRes.getData();
+        if (StringUtils.isNotEmpty(checkAndLockStr)) {
+            throw new ServiceException(checkAndLockStr);
+        }
 
         Long orderId = null;
         try {
@@ -263,6 +292,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderId = saveOrder(orderForm);
         } catch (Exception e) {
             e.printStackTrace();
+            // 4.1 下单失败，解锁库存
+            rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.ROUTING_UNLOCK, orderForm.getTradeNo());
             //抛出异常
             throw new ServiceException("下单失败");
         }
@@ -326,6 +357,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderLog.setOrderId(orderInfo.getId());
         orderLog.setProcessStatus(0);
         orderLog.setNote("提交订单");
+        orderLog.setCreateBy(SecurityContextHolder.getUserName());
+        orderLog.setCreateTime(new Date());
         orderLogMapper.insert(orderLog);
         return orderInfo.getId();
     }

@@ -29,4 +29,10 @@ public class RegionController extends BaseController {
     public AjaxResult treeSelect(@PathVariable("parentCode") String parentCode) {
         return success(regionService.treeSelect(parentCode));
     }
+
+    @Operation(summary = "根据地区编码获取地区名称")
+    @GetMapping("/getNameByCode/{code}")
+    public AjaxResult getNameByCode(@PathVariable("code") String code) {
+        return success(regionService.getNameByCode(code));
+    }
 }

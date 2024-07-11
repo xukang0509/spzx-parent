@@ -14,14 +14,4 @@
     <description>
         spzx-api-cart购物车接口模块
     </description>
-
-    <dependencies>
-
-        <!-- spzx Common Core-->
-        <dependency>
-            <groupId>com.spzx</groupId>
-            <artifactId>spzx-common-core</artifactId>
-        </dependency>
-
-    </dependencies>
 </project>

@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 public class OrderReceiver {
     @Resource
     private OrderInfoService orderInfoService;
-
-
+    
     @SneakyThrows
     @RabbitListener(queues = MqConst.QUEUE_CANCEL_ORDER)
     public void processCloseOrder(String orderId, Message message, Channel channel) {

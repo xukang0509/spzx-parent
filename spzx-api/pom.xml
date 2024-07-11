@@ -21,5 +21,13 @@
     <description>
         spzx-api系统接口
     </description>
+    <dependencies>
 
+        <!-- spzx Common Core-->
+        <dependency>
+            <groupId>com.spzx</groupId>
+            <artifactId>spzx-common-core</artifactId>
+        </dependency>
+
+    </dependencies>
 </project>

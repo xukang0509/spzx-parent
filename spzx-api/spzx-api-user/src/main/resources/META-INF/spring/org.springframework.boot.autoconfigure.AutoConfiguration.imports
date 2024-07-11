@@ -1,3 +1,2 @@
 com.spzx.user.api.factory.RemoteUserInfoFallbackFactory
 com.spzx.user.api.factory.RemoteUserAddressFallbackFactory
-com.spzx.user.api.interceptor.UserFeignInterceptor

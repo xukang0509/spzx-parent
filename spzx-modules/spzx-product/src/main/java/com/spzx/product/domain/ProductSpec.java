@@ -31,7 +31,7 @@ public class ProductSpec extends BaseEntity {
 
     @Schema(description = "规格值：\"[{\"key\":\"颜色\",\"valueList\":[\"蓝\",\"白\",\"红\"]]\"")
     @NotBlank(message = "规格值不能为空")
-    @Size(min = 0, max = 200, message = "规格值长度不能超过200个字符")
+    @Size(min = 0, max = 600, message = "规格值长度不能超过600个字符")
     private String specValue;
 
     @Schema(description = "分类名称")

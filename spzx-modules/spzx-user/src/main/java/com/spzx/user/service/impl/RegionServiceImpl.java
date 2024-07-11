@@ -33,6 +33,6 @@ public class RegionServiceImpl extends ServiceImpl<RegionMapper, Region> impleme
         if (!StringUtils.hasText(code)) return "";
         Region region = regionMapper.selectOne(Wrappers.lambdaQuery(Region.class)
                 .eq(Region::getCode, code).select(Region::getName));
-        return region.getName() == null ? "" : region.getName();
+        return (region == null || region.getName() == null) ? "" : region.getName();
     }
 }

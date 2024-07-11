@@ -109,7 +109,7 @@
           </el-form-item>
           <el-form-item label="计量单位" prop="unitName">
             <el-select v-model="form.unitName" class="m-2" placeholder="计量单位">
-              <el-option v-for="item in productUnitList" :key="item.id" :label="item.name" :value="item.id"/>
+              <el-option v-for="item in productUnitList" :key="item.id" :label="item.name" :value="item.name"/>
             </el-select>
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderUrlList">

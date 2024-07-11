@@ -2,6 +2,7 @@ package com.spzx.product.controller;
 
 import com.github.pagehelper.PageHelper;
 import com.spzx.common.core.domain.R;
+import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
@@ -156,5 +157,20 @@ public class ProductController extends BaseController {
     @PostMapping("getSkuPriceList")
     public R<List<SkuPrice>> getSkuPriceList(@RequestBody List<Long> skuIds) {
         return R.ok(productService.getSkuPriceListBySkuIds(skuIds));
+    }
+    
+    @InnerAuth
+    @Operation(summary = "检查与锁定库存")
+    @PostMapping("checkAndLock/{orderNo}")
+    public R<String> checkAndLock(@PathVariable("orderNo") String orderNo, @RequestBody List<SkuLockVo> skuLockVoList) {
+        try {
+            return R.ok(productService.checkAndLock(orderNo, skuLockVoList));
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return R.ok(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.ok("库存不足");
+        }
     }
 }

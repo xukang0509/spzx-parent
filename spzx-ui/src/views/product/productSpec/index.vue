@@ -60,7 +60,7 @@
     />
 
     <!-- 新增或修改商品规格对话框 -->
-    <el-dialog :title="title" v-model="open"  width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open"  width="60%" append-to-body>
       <el-form ref="productSpecRef" :model="form" :rules="rules"  label-width="80px">
         <el-form-item label="分类" prop="categoryIdList">
           <el-cascader :props="categoryProps" v-model="form.categoryIdList" />

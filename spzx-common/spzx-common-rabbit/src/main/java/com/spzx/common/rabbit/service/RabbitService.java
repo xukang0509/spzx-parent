@@ -49,7 +49,7 @@ public class RabbitService {
      * @param msg        消息
      * @param delayTime  延迟时间，单位：秒
      */
-    public boolean sendDelayMessage(String exchange, String routingKey, Object msg, int delayTime) {
+    public boolean sendDelayMessage(String exchange, String routingKey, Object msg, Integer delayTime) {
         // 1.创建自定义相关消息对象---包含业务数据本身、交换机名称、路由键、队列类型、延迟时间、重试次数
         GuiguCorrelationData correlationData = new GuiguCorrelationData();
         String uuid = "mq:" + UUID.randomUUID().toString().replaceAll("-", "");

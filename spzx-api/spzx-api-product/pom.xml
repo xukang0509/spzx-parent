@@ -14,14 +14,4 @@
         spzx-api-product商品接口模块
     </description>
 
-    <dependencies>
-
-        <!-- RuoYi Common Core-->
-        <dependency>
-            <groupId>com.spzx</groupId>
-            <artifactId>spzx-common-core</artifactId>
-        </dependency>
-
-    </dependencies>
-
 </project>
