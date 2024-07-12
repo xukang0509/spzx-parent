@@ -2,10 +2,12 @@ package com.spzx.channel.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.spzx.channel.service.ItemService;
+import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.product.api.RemoteProductService;
 import com.spzx.product.api.domain.*;
+import com.spzx.user.api.RemoteUserInfoService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
@@ -22,6 +24,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Service
 @Slf4j
 public class ItemServiceImpl implements ItemService {
+    @Resource
+    private RemoteUserInfoService remoteUserInfoService;
     @Resource
     private RemoteProductService remoteProductService;
     @Resource
@@ -40,6 +44,9 @@ public class ItemServiceImpl implements ItemService {
             throw new ServiceException("用户查询商品sku不存在");
         }
 
+        // 记录浏览历史
+        remoteUserInfoService.saveUserBrowseHistory(skuId, SecurityContextHolder.getUserId());
+        
         Map<String, Object> data = new HashMap<>();
         // 获取ProductSku
         CompletableFuture<ProductSku> skuCompletableFuture = CompletableFuture.supplyAsync(() -> {

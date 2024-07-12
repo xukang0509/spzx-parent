@@ -34,6 +34,11 @@ public class RemoteUserInfoFallbackFactory implements FallbackFactory<RemoteUser
             public R<UserInfo> getUserInfo(String username) {
                 return R.fail("根据用户名获取会员信息失败：" + cause.getMessage());
             }
+
+            @Override
+            public R<Void> saveUserBrowseHistory(Long skuId, Long userId) {
+                return R.fail("记录用户浏览记录失败：" + cause.getMessage());
+            }
         };
     }
 }

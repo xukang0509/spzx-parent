@@ -1,9 +1,13 @@
 package com.spzx.user.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.spzx.user.api.domain.UpdateUserLogin;
 import com.spzx.user.api.domain.UserAddress;
 import com.spzx.user.api.domain.UserInfo;
+import com.spzx.user.domain.UserBrowseHistory;
+import com.spzx.user.domain.UserCollect;
 
 import java.util.List;
 
@@ -53,4 +57,19 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 用户信息
      */
     UserInfo selectUserInfoByUsername(String username);
+
+    /* 用户收藏模块 */
+    IPage<UserCollect> userCollectList(Page<UserCollect> page);
+
+    Boolean isCollect(Long skuId);
+
+    Boolean collect(Long skuId);
+
+    Boolean cancelCollect(Long skuId);
+
+    /* 用户浏览历史模块 */
+    IPage<UserBrowseHistory> userBrowseHistoryList(Page<UserBrowseHistory> pageParam);
+
+    void saveUserBrowseHistory(Long skuId, Long userId);
+
 }

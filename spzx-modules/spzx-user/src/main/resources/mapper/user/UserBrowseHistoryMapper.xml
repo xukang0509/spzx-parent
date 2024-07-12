@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spzx.user.mapper.UserBrowseHistoryMapper">
+
+    <resultMap type="com.spzx.user.domain.UserBrowseHistory" id="UserBrowseHistoryResult" autoMapping="true">
+    </resultMap>
+
+    <sql id="selectUserBrowseHistoryVo">
+        select id, user_id, sku_id, create_time, create_by, update_time, update_by, del_flag, remark from user_browse_history
+    </sql>
+
+
+</mapper>

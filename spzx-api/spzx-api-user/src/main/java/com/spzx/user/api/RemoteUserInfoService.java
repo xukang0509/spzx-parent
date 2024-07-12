@@ -22,4 +22,7 @@ public interface RemoteUserInfoService {
 
     @GetMapping("/userInfo/info/{username}")
     R<UserInfo> getUserInfo(@PathVariable("username") String username);
+
+    @GetMapping("/userInfo/saveUserBrowseHistory/{skuId}/{userId}")
+    R<Void> saveUserBrowseHistory(@PathVariable("skuId") Long skuId, @PathVariable("userId") Long userId);
 }
