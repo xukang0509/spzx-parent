@@ -13,7 +13,11 @@ import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.StringUtils;
 import com.spzx.common.rabbit.constant.MqConst;
 import com.spzx.common.rabbit.service.RabbitService;
-import com.spzx.order.domain.*;
+import com.spzx.order.api.domain.OrderInfo;
+import com.spzx.order.api.domain.OrderItem;
+import com.spzx.order.domain.OrderForm;
+import com.spzx.order.domain.OrderLog;
+import com.spzx.order.domain.TradeVo;
 import com.spzx.order.mapper.OrderInfoMapper;
 import com.spzx.order.mapper.OrderItemMapper;
 import com.spzx.order.mapper.OrderLogMapper;
@@ -178,7 +182,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderInfo.setCancelTime(new Date());
             orderInfo.setCancelReason("未支付自动取消");
             orderInfo.setUpdateTime(new Date());
-            orderInfo.setUpdateBy(SecurityContextHolder.getUserName());
             orderInfoMapper.updateById(orderInfo);
 
             // 记录日志
@@ -186,7 +189,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderLog.setOrderId(orderInfo.getId());
             orderLog.setProcessStatus(-1);
             orderLog.setNote("系统取消订单");
-            orderLog.setCreateBy(SecurityContextHolder.getUserName());
             orderLog.setCreateTime(new Date());
             orderLogMapper.insert(orderLog);
 
@@ -218,6 +220,17 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             //发送MQ消息通知商品系统解锁库存
             rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.QUEUE_UNLOCK, orderInfo.getOrderNo());
         }
+    }
+
+    // 根据订单号获取订单信息
+    @Override
+    public OrderInfo getByOrderNo(String orderNo) {
+        OrderInfo orderInfo = orderInfoMapper.selectOne(Wrappers.lambdaQuery(OrderInfo.class)
+                .eq(OrderInfo::getOrderNo, orderNo));
+        List<OrderItem> orderItemList = orderItemMapper.selectList(Wrappers.lambdaQuery(OrderItem.class)
+                .eq(OrderItem::getOrderId, orderInfo.getId()));
+        orderInfo.setOrderItemList(orderItemList);
+        return orderInfo;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -357,7 +370,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderLog.setOrderId(orderInfo.getId());
         orderLog.setProcessStatus(0);
         orderLog.setNote("提交订单");
-        orderLog.setCreateBy(SecurityContextHolder.getUserName());
+        orderLog.setCreateBy(userName);
         orderLog.setCreateTime(new Date());
         orderLogMapper.insert(orderLog);
         return orderInfo.getId();

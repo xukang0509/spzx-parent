@@ -1,7 +1,7 @@
 package com.spzx.order.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.spzx.order.domain.OrderItem;
+import com.spzx.order.api.domain.OrderItem;
 import com.spzx.order.mapper.OrderItemMapper;
 import com.spzx.order.service.OrderItemService;
 import jakarta.annotation.Resource;

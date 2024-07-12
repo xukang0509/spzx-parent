@@ -3,8 +3,8 @@ package com.spzx.order.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.spzx.order.api.domain.OrderInfo;
 import com.spzx.order.domain.OrderForm;
-import com.spzx.order.domain.OrderInfo;
 import com.spzx.order.domain.TradeVo;
 
 import java.util.List;
@@ -45,4 +45,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     void cancelOrder(Long orderId);
 
+    // 根据订单号获取订单信息
+    OrderInfo getByOrderNo(String orderNo);
 }

@@ -2,21 +2,23 @@ package com.spzx.order.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.spzx.common.core.domain.R;
 import com.spzx.common.core.utils.poi.ExcelUtil;
 import com.spzx.common.core.web.controller.BaseController;
 import com.spzx.common.core.web.domain.AjaxResult;
 import com.spzx.common.core.web.page.TableDataInfo;
 import com.spzx.common.log.annotation.Log;
 import com.spzx.common.log.enums.BusinessType;
+import com.spzx.common.security.annotation.InnerAuth;
 import com.spzx.common.security.annotation.RequiresLogin;
 import com.spzx.common.security.annotation.RequiresPermissions;
+import com.spzx.order.api.domain.OrderInfo;
 import com.spzx.order.domain.OrderForm;
-import com.spzx.order.domain.OrderInfo;
 import com.spzx.order.service.OrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +33,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/orderInfo")
 public class OrderInfoController extends BaseController {
-    @Autowired
+    @Resource
     private OrderInfoService orderInfoService;
 
     /**
@@ -114,5 +116,12 @@ public class OrderInfoController extends BaseController {
     public AjaxResult cancelOrder(@PathVariable Long orderId) {
         orderInfoService.cancelOrder(orderId);
         return success();
+    }
+
+    @Operation(summary = "根据订单号获取订单信息")
+    @InnerAuth
+    @GetMapping("getByOrderNo/{orderNo}")
+    public R<OrderInfo> getByOrderNo(@PathVariable String orderNo) {
+        return R.ok(orderInfoService.getByOrderNo(orderNo));
     }
 }

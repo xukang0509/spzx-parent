@@ -1,4 +1,4 @@
-package com.spzx.order.domain;
+package com.spzx.order.api.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;

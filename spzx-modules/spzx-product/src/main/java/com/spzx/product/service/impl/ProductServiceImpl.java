@@ -408,7 +408,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public String checkAndLock(String orderNo, List<SkuLockVo> skuLockVoList) {
         String key = "sku:checkAndLock:" + orderNo;
-        String dataKey = "sku:lock:data:" + orderNo;
+        String dataKey = getDataKey(orderNo);
         // 防止重复请求
         Boolean isExist = redisTemplate.opsForValue().setIfAbsent(key, orderNo, 1, TimeUnit.HOURS);
         if (!isExist) {
@@ -467,7 +467,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public void unlock(String orderNo) {
         String key = "sku:unlock:" + orderNo;
-        String dataKey = "sku:lock:data:" + orderNo;
+        String dataKey = getDataKey(orderNo);
         // 业务去重，防止重复消费
         Boolean isExist = redisTemplate.opsForValue().setIfAbsent(key, orderNo, 1, TimeUnit.HOURS);
         if (!isExist) return;
@@ -491,7 +491,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public void minus(String orderNo) {
         String key = "sku:minus:" + orderNo;
-        String dataKey = "sku:lock:data:" + orderNo;
+        String dataKey = getDataKey(orderNo);
         // 业务去重，防止重复消费
         Boolean isExist = redisTemplate.opsForValue().setIfAbsent(key, orderNo, 1, TimeUnit.HOURS);
         if (!isExist) return;
@@ -509,5 +509,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         });
         // 解锁库存之后，删除锁定库存的缓存。以防止重复解锁库存
         redisTemplate.delete(dataKey);
+    }
+
+    private String getDataKey(String orderNo) {
+        return "sku:lock:data:" + orderNo;
     }
 }

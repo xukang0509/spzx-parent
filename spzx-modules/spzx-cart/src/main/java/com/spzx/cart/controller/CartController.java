@@ -48,8 +48,7 @@ public class CartController extends BaseController {
     public AjaxResult deleteCart(
             @Parameter(name = "skuId", description = "商品skuId", required = true)
             @PathVariable("skuId") Long skuId) {
-        cartService.deleteCartBySkuId(skuId);
-        return success();
+        return toAjax(cartService.deleteCartBySkuId(skuId));
     }
 
     @Operation(summary = "更新选中商品状态")
@@ -78,8 +77,7 @@ public class CartController extends BaseController {
     @RequiresLogin
     @GetMapping("clearCart")
     public AjaxResult clearCart() {
-        cartService.clearCart();
-        return success();
+        return toAjax(cartService.clearCart());
     }
 
     @Operation(summary = "查询用户购物车列表中选中商品列表")

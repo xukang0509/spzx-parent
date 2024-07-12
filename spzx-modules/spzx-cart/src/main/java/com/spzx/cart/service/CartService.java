@@ -25,7 +25,7 @@ public interface CartService {
      *
      * @param skuId
      */
-    void deleteCartBySkuId(Long skuId);
+    Boolean deleteCartBySkuId(Long skuId);
 
     /**
      * 更新选中商品状态
@@ -45,7 +45,7 @@ public interface CartService {
     /**
      * 清空购物车
      */
-    void clearCart();
+    Boolean clearCart();
 
 
     List<CartInfo> getCartCheckedList(Long userId);

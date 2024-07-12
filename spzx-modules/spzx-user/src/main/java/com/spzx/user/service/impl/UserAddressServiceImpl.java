@@ -50,14 +50,14 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
             UserAddress userAddressUp = new UserAddress();
             userAddressUp.setIsDefault(0L);
             userAddressMapper.update(userAddressUp, Wrappers.lambdaQuery(UserAddress.class)
-                    .eq(UserAddress::getUserId, userAddress.getUserId()));
+                    .eq(UserAddress::getUserId, userAddress.getUserId())
+                    .eq(UserAddress::getIsDefault, 1L));
         }
         return userAddressMapper.insert(userAddress);
     }
 
     @Override
     public int updateUserAddress(UserAddress userAddress) {
-        userAddress.setUserId(SecurityContextHolder.getUserId());
         userAddress.setUpdateTime(DateUtils.getNowDate());
         userAddress.setUpdateBy(SecurityContextHolder.getUserName());
 
@@ -72,7 +72,8 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
             UserAddress userAddressUp = new UserAddress();
             userAddressUp.setIsDefault(0L);
             userAddressMapper.update(userAddressUp, Wrappers.lambdaQuery(UserAddress.class)
-                    .eq(UserAddress::getUserId, userAddress.getUserId()));
+                    .eq(UserAddress::getUserId, userAddress.getUserId())
+                    .eq(UserAddress::getIsDefault, 1L));
         }
         return userAddressMapper.updateById(userAddress);
     }

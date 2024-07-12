@@ -35,22 +35,20 @@ public class CartServiceImpl implements CartService {
     public void addToCart(Long skuId, Integer skuNum) {
         // 获取当前登录用户的id
         Long userId = SecurityContextHolder.getUserId();
-        // 1.构建"用户"购物车hash结构key：user:cart:用户ID
-        String cartKey = getCartKey(userId);
-        // 2.创建Hash结构绑定操作对象(方便对hash进行操作)
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
+        // 获取对应的购物车
+        BoundHashOperations<String, String, CartInfo> cart = getCart(userId);
         // 3.判断用户购物车中是否包含该商品 如果包含：数量进行累加(某件商品数量上限99)；不包含：新增购物车商品
         String hashKey = String.valueOf(skuId);
         Integer threadHold = 99;
-        if (hashOps.hasKey(hashKey)) {
+        if (cart.hasKey(hashKey)) {
             // 3.1 说明该商品在购物车中已存在，对数量进行累加，不能超过指定上限99
-            CartInfo cartInfo = hashOps.get(hashKey);
+            CartInfo cartInfo = cart.get(hashKey);
             int totalCount = cartInfo.getSkuNum() + skuNum;
             cartInfo.setSkuNum(totalCount > threadHold ? threadHold : totalCount);
-            hashOps.put(hashKey, cartInfo);
+            cart.put(hashKey, cartInfo);
         } else {
             // 4.判断购物车商品种类(不同sku)总数是否大于50
-            Long count = hashOps.size();
+            Long count = cart.size();
             if (count > 50) {
                 throw new ServiceException("商品种类数量超过上限！");
             }
@@ -75,18 +73,15 @@ public class CartServiceImpl implements CartService {
             cartInfo.setCartPrice(productSku.getSalePrice());
 
             // 3.3 将购物车商品存入redis
-            hashOps.put(hashKey, cartInfo);
+            cart.put(hashKey, cartInfo);
         }
     }
 
     @Override
     public List<CartInfo> getCartList() {
-        // 获取当前登录用户的id
-        Long userId = SecurityContextHolder.getUserId();
-        // 构建"用户"购物车hash结构key：user:cart:用户ID
-        String cartKey = getCartKey(userId);
+        BoundHashOperations<String, String, CartInfo> cart = getCart(SecurityContextHolder.getUserId());
         // 获取数据
-        List<CartInfo> cartInfoList = redisTemplate.opsForHash().values(cartKey);
+        List<CartInfo> cartInfoList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoList)) {
             List<CartInfo> infoList = cartInfoList.stream()
                     .sorted((c1, c2) -> c2.getCreateTime().compareTo(c1.getCreateTime())).toList();
@@ -109,55 +104,45 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCartBySkuId(Long skuId) {
-        Long userId = SecurityContextHolder.getUserId();
-        String cartKey = getCartKey(userId);
-        // 获取缓存对象
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
-        hashOps.delete(String.valueOf(skuId));
+    public Boolean deleteCartBySkuId(Long skuId) {
+        BoundHashOperations<String, String, CartInfo> cart = getCart(SecurityContextHolder.getUserId());
+        return cart.delete(String.valueOf(skuId)) > 0;
     }
 
     @Override
     public void checkCart(Long skuId, Integer isChecked) {
-        Long userId = SecurityContextHolder.getUserId();
-        String cartKey = getCartKey(userId);
-        // 获取缓存对象
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
-        if (hashOps.hasKey(String.valueOf(skuId))) {
-            CartInfo cartInfo = hashOps.get(String.valueOf(skuId));
+        BoundHashOperations<String, String, CartInfo> cart = getCart(SecurityContextHolder.getUserId());
+        if (cart.hasKey(String.valueOf(skuId))) {
+            CartInfo cartInfo = cart.get(String.valueOf(skuId));
             cartInfo.setIsChecked(isChecked);
-            hashOps.put(String.valueOf(skuId), cartInfo);
+            cart.put(String.valueOf(skuId), cartInfo);
         }
     }
 
     @Override
     public void allCheckCart(Integer isChecked) {
-        Long userId = SecurityContextHolder.getUserId();
-        String cartKey = getCartKey(userId);
-        // 获取缓存对象
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
-        List<CartInfo> cartInfoList = hashOps.values();
+        BoundHashOperations<String, String, CartInfo> cart = getCart(SecurityContextHolder.getUserId());
+        List<CartInfo> cartInfoList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoList)) {
             cartInfoList.forEach(cartInfo -> {
                 cartInfo.setIsChecked(isChecked);
-                hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
+                cart.put(cartInfo.getSkuId().toString(), cartInfo);
             });
         }
     }
 
     @Override
-    public void clearCart() {
+    public Boolean clearCart() {
         Long userId = SecurityContextHolder.getUserId();
         String cartKey = getCartKey(userId);
-        redisTemplate.delete(cartKey);
+        return redisTemplate.delete(cartKey);
     }
 
     @Override
     public List<CartInfo> getCartCheckedList(Long userId) {
         List<CartInfo> cartInfoList = new ArrayList<>();
-
-        String cartKey = getCartKey(userId);
-        List<CartInfo> cartInfoCacheList = redisTemplate.opsForHash().values(cartKey);
+        BoundHashOperations<String, String, CartInfo> cart = getCart(SecurityContextHolder.getUserId());
+        List<CartInfo> cartInfoCacheList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoCacheList)) {
             cartInfoList.addAll(cartInfoCacheList.stream()
                     .filter(cartInfo -> cartInfo.getIsChecked() == 1).toList());
@@ -167,9 +152,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Boolean updateCartPrice(Long userId) {
-        String cartKey = getCartKey(userId);
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
-        List<CartInfo> cartInfoList = hashOps.values();
+        BoundHashOperations<String, String, CartInfo> cart = getCart(userId);
+        List<CartInfo> cartInfoList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoList)) {
             for (CartInfo cartInfo : cartInfoList) {
                 if (cartInfo.getIsChecked() == 1) {
@@ -180,7 +164,7 @@ public class CartServiceImpl implements CartService {
                     SkuPrice skuPrice = skuPriceRes.getData();
                     cartInfo.setCartPrice(skuPrice.getSalePrice());
                     cartInfo.setSkuPrice(skuPrice.getSalePrice());
-                    hashOps.put(cartInfo.getSkuId().toString(), cartInfo);
+                    cart.put(cartInfo.getSkuId().toString(), cartInfo);
                 }
             }
         }
@@ -189,17 +173,30 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Boolean deleteCartCheckedList(Long userId) {
-        String cartKey = getCartKey(userId);
-        BoundHashOperations<String, String, CartInfo> hashOps = redisTemplate.boundHashOps(cartKey);
-        List<CartInfo> cartInfoList = hashOps.values();
+        BoundHashOperations<String, String, CartInfo> cart = getCart(userId);
+        List<CartInfo> cartInfoList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoList)) {
             for (CartInfo cartInfo : cartInfoList) {
                 if (cartInfo.getIsChecked() == 1) {
-                    hashOps.delete(cartInfo.getSkuId().toString());
+                    cart.delete(cartInfo.getSkuId().toString());
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * 根据userId获取缓存中的购物车
+     *
+     * @param userId 会员ID
+     * @return 购物车HashMap结构，key：skuId；value：CartInfo
+     */
+    private BoundHashOperations<String, String, CartInfo> getCart(Long userId) {
+        // 1.构建"用户"购物车hash结构key：user:cart:用户ID
+        String cartKey = getCartKey(userId);
+        // 2.创建Hash结构绑定操作对象(购物车)(方便对hash进行操作)
+        BoundHashOperations<String, String, CartInfo> cart = redisTemplate.boundHashOps(cartKey);
+        return cart;
     }
 
     private String getCartKey(Long userId) {
