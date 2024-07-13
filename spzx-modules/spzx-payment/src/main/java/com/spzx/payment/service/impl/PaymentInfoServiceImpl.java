@@ -17,8 +17,11 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 付款信息Service业务层处理
@@ -55,17 +58,17 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
             paymentInfo.setAmount(orderInfo.getTotalAmount());
             paymentInfo.setPaymentStatus(0);
 
-            StringBuilder content = new StringBuilder();
+            List<String> strings = new ArrayList<>();
             for (OrderItem orderItem : orderInfo.getOrderItemList()) {
-                content.append(orderItem.getSkuName()).append(" ");
+                strings.add(orderItem.getSkuName());
             }
-            paymentInfo.setContent(content.toString());
+            paymentInfo.setContent(strings.stream().collect(Collectors.joining(" ")));
 
             paymentInfoMapper.insert(paymentInfo);
         }
         return paymentInfo;
     }
-    
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updatePaymentStatus(Map<String, String> paramMap, Integer payType) {
@@ -82,6 +85,7 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
         paymentInfoMapper.updateById(paymentInfo);
 
         // 基于MQ通知订单系统，修改订单状态
-        rabbitService.sendMessage(MqConst.EXCHANGE_PAYMENT_PAY, MqConst.ROUTING_PAYMENT_PAY, paymentInfo.getOrderNo());
+        rabbitService.sendMessage(MqConst.EXCHANGE_PAYMENT_PAY, MqConst.ROUTING_PAYMENT_PAY,
+                paymentInfo.getOrderNo());
     }
 }

@@ -233,6 +233,20 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderInfo;
     }
 
+    @Override
+    public void processPaySuccess(String orderNo) {
+        // 获取订单信息
+        OrderInfo orderInfo = orderInfoMapper.selectOne(Wrappers.lambdaQuery(OrderInfo.class)
+                .eq(OrderInfo::getOrderNo, orderNo)
+                .select(OrderInfo::getId, OrderInfo::getOrderStatus));
+        // 未支付
+        if (orderInfo.getOrderStatus() == 0) {
+            orderInfo.setOrderStatus(1);
+            orderInfo.setPaymentTime(new Date());
+            orderInfoMapper.updateById(orderInfo);
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Long submitOrder(OrderForm orderForm) {
@@ -377,6 +391,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 渲染订单确认页面---生成用户流水号
+     *
+     * @param userId
+     * @return
+     */
+    private String generateTradeNo(Long userId) {
+        // 1、构建流水号Key
+        String userTradeKey = "user:tradeNo:" + userId;
+        // 2、构建流水号value
+        String tradeNo = UUID.randomUUID().toString().replaceAll("-", "");
+        // 3、将流水号存入Redis 暂存5分钟
+        redisTemplate.opsForValue().set(userTradeKey, tradeNo, 5, TimeUnit.MINUTES);
+        return tradeNo;
+    }
+
+    /**
      * 验证页面提交流水号是否有效
      *
      * @param userId
@@ -398,21 +428,4 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String userTradeKey = "user:tradeNo:" + userId;
         redisTemplate.delete(userTradeKey);
     }
-
-    /**
-     * 渲染订单确认页面---生成用户流水号
-     *
-     * @param userId
-     * @return
-     */
-    private String generateTradeNo(Long userId) {
-        // 1、构建流水号Key
-        String userTradeKey = "user:tradeNo:" + userId;
-        // 2、构建流水号value
-        String tradeNo = UUID.randomUUID().toString().replaceAll("-", "");
-        // 3、将流水号存入Redis 暂存5分钟
-        redisTemplate.opsForValue().set(userTradeKey, tradeNo, 5, TimeUnit.MINUTES);
-        return tradeNo;
-    }
-
 }
