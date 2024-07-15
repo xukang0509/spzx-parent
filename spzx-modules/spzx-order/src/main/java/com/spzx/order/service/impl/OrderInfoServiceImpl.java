@@ -31,6 +31,7 @@ import com.spzx.user.api.domain.UserAddress;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private RemoteCartService remoteCartService;
     @Resource
     private RedisTemplate redisTemplate;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private RemoteProductService remoteProductService;
@@ -116,6 +119,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
         //渲染订单确认页面-生成用户流水号
         String tradeNo = this.generateTradeNo(userId);
+        stringRedisTemplate.opsForValue().set("spzx:order:trade:" + tradeNo, "1", 1, TimeUnit.HOURS);
 
         TradeVo tradeVo = new TradeVo();
         tradeVo.setTradeNo(tradeNo);
@@ -143,6 +147,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String tradeNo = generateTradeNo(userId);
 
         TradeVo tradeVo = new TradeVo();
+        stringRedisTemplate.opsForValue().set("spzx:order:trade:" + tradeNo, "2", 1, TimeUnit.HOURS);
+
         tradeVo.setTradeNo(tradeNo);
         tradeVo.setTotalAmount(totalAmount);
         tradeVo.setOrderItemList(Arrays.asList(orderItem));
@@ -218,7 +224,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderLog.setCreateTime(new Date());
             orderLogMapper.insert(orderLog);
             //发送MQ消息通知商品系统解锁库存
-            rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.QUEUE_UNLOCK, orderInfo.getOrderNo());
+            rabbitService.sendMessage(MqConst.EXCHANGE_PRODUCT, MqConst.ROUTING_UNLOCK, orderInfo.getOrderNo());
         }
     }
 
@@ -324,8 +330,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             //抛出异常
             throw new ServiceException("下单失败");
         }
-        // 删除购物车选项
-        remoteCartService.deleteCartCheckedList(userId);
+        // BUG: 立即购买时会删掉购物车中选中的商品
+        // 解决：redis保存数据源
+        String source = stringRedisTemplate.opsForValue().getAndDelete("spzx:order:trade:" + orderForm.getTradeNo());
+        if (StringUtils.isNotEmpty(source) && Objects.equals(source, "1")) {
+            // 删除购物车选项
+            remoteCartService.deleteCartCheckedList(userId);
+        }
 
         // 发送延迟消息，取消订单
         rabbitService.sendDelayMessage(
@@ -384,7 +395,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderLog.setOrderId(orderInfo.getId());
         orderLog.setProcessStatus(0);
         orderLog.setNote("提交订单");
-        orderLog.setCreateBy(userName);
         orderLog.setCreateTime(new Date());
         orderLogMapper.insert(orderLog);
         return orderInfo.getId();

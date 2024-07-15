@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.spzx.common.rabbit.entity.GuiguCorrelationData;
 import jakarta.annotation.Resource;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,7 +15,7 @@ public class RabbitService {
     @Resource
     private RabbitTemplate rabbitTemplate;
     @Resource
-    private RedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 发送消息
@@ -37,7 +37,7 @@ public class RabbitService {
         rabbitTemplate.convertAndSend(exchange, routingKey, message, correlationData);
 
         // 3.将相关数据存入Redis；key：uuid，value：相关消息对象；10分钟
-        redisTemplate.opsForValue().set(uuid, JSON.toJSONString(correlationData), 10, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(uuid, JSON.toJSONString(correlationData), 10, TimeUnit.MINUTES);
         return true;
     }
 
@@ -67,7 +67,7 @@ public class RabbitService {
         }, correlationData);
 
         // 3.将相关数据存入Redis；key：uuid，value：相关消息对象；10分钟
-        redisTemplate.opsForValue().set(uuid, JSON.toJSONString(correlationData), 10, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(uuid, JSON.toJSONString(correlationData), 10, TimeUnit.MINUTES);
         return true;
     }
 }

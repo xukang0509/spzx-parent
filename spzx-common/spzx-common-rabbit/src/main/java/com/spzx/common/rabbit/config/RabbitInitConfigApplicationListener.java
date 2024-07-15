@@ -8,7 +8,7 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -20,7 +20,7 @@ public class RabbitInitConfigApplicationListener implements ApplicationListener<
     private RabbitTemplate rabbitTemplate;
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -59,7 +59,7 @@ public class RabbitInitConfigApplicationListener implements ApplicationListener<
             // 当路由队列失败 也需要重发
             // 1.构建相关数据对象
             String redisKey = returned.getMessage().getMessageProperties().getHeader("spring_returned_message_correlation");
-            String correlationDataStr = (String) redisTemplate.opsForValue().get(redisKey);
+            String correlationDataStr = stringRedisTemplate.opsForValue().get(redisKey);
             GuiguCorrelationData correlationData = JSON.parseObject(correlationDataStr, GuiguCorrelationData.class);
 
             // TODO 方式一：如果不考虑延迟消息重发，直接返回
@@ -88,7 +88,7 @@ public class RabbitInitConfigApplicationListener implements ApplicationListener<
         // 重次次数加一
         retryCount++;
         guiguCorrelationData.setRetryCount(retryCount);
-        redisTemplate.opsForValue().set(guiguCorrelationData.getId(), JSON.toJSONString(guiguCorrelationData),
+        stringRedisTemplate.opsForValue().set(guiguCorrelationData.getId(), JSON.toJSONString(guiguCorrelationData),
                 10, TimeUnit.MINUTES);
         log.info("进行消息重发！");
 

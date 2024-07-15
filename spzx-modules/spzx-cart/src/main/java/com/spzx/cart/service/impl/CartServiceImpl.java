@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -133,9 +134,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Boolean clearCart() {
-        Long userId = SecurityContextHolder.getUserId();
-        String cartKey = getCartKey(userId);
-        return redisTemplate.delete(cartKey);
+        return redisTemplate.delete(getCartKey(SecurityContextHolder.getUserId()));
     }
 
     @Override
@@ -171,6 +170,7 @@ public class CartServiceImpl implements CartService {
         return true;
     }
 
+    @Async
     @Override
     public Boolean deleteCartCheckedList(Long userId) {
         BoundHashOperations<String, String, CartInfo> cart = getCart(userId);
@@ -195,11 +195,10 @@ public class CartServiceImpl implements CartService {
         // 1.构建"用户"购物车hash结构key：user:cart:用户ID
         String cartKey = getCartKey(userId);
         // 2.创建Hash结构绑定操作对象(购物车)(方便对hash进行操作)
-        BoundHashOperations<String, String, CartInfo> cart = redisTemplate.boundHashOps(cartKey);
-        return cart;
+        return redisTemplate.boundHashOps(cartKey);
     }
 
-    private String getCartKey(Long userId) {
+    private static String getCartKey(Long userId) {
         return "user:cart:" + userId;
     }
 }

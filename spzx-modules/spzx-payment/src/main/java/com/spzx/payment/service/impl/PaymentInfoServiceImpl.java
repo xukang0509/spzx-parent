@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 付款信息Service业务层处理
@@ -62,7 +61,7 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
             for (OrderItem orderItem : orderInfo.getOrderItemList()) {
                 strings.add(orderItem.getSkuName());
             }
-            paymentInfo.setContent(strings.stream().collect(Collectors.joining(" ")));
+            paymentInfo.setContent(String.join(" ", strings));
 
             paymentInfoMapper.insert(paymentInfo);
         }

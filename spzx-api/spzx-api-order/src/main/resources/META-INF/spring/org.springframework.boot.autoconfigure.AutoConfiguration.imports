@@ -1,1 +1,2 @@
 com.spzx.order.api.factory.RemoteOrderInfoFallbackFactory
+com.spzx.common.core.interceptor.RemoteFeignRequestInterceptor

@@ -35,7 +35,7 @@ public class OrderReceiver {
     @RabbitListener(queues = MqConst.QUEUE_CANCEL_ORDER)
     public void processCloseOrder(String orderId, Message message, Channel channel) {
         // 1.处理业务
-        if (orderId != null) {
+        if (StringUtils.isNotEmpty(orderId)) {
             log.info("【订单微服务】关闭订单消息：{}", orderId);
             // 修改订单状态-为关闭
             orderInfoService.processCloseOrder(Long.parseLong(orderId));
