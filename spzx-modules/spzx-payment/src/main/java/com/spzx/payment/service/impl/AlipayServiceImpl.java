@@ -1,14 +1,16 @@
 package com.spzx.payment.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.spzx.common.core.exception.ServiceException;
 import com.spzx.payment.configure.AlipayConfig;
 import com.spzx.payment.domain.PaymentInfo;
 import com.spzx.payment.service.AlipayService;
@@ -17,9 +19,6 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -42,16 +41,27 @@ public class AlipayServiceImpl implements AlipayService {
         // 异步回调
         alipayRequest.setNotifyUrl(AlipayConfig.notify_payment_url); //在公共参数中设置回跳和通知地址
 
-        // 参数：声明一个map集合
-        Map<String, Object> map = new HashMap<>();
-        map.put("out_trade_no", paymentInfo.getOrderNo());
-        map.put("product_code", "QUICK_WAP_WAY");
-        map.put("subject", paymentInfo.getContent());
-        //map.put("total_amount", paymentInfo.getAmount());
-        map.put("total_amount", "0.01");
+        // 参数：封装请求支付信息
+        AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+        model.setOutTradeNo(paymentInfo.getOrderNo());              // 订单号
+        model.setSubject(paymentInfo.getContent());                 // 主题
+        model.setTotalAmount(paymentInfo.getAmount().toString());   // 支付金额
+        model.setBody(paymentInfo.getContent());                    // 介绍
+        model.setProductCode("QUICK_WAP_WAY");                      // 产品码
 
-        alipayRequest.setBizContent(JSON.toJSONString(map));
-        return alipayClient.pageExecute(alipayRequest).getBody(); //调用SDK生成表单;
+        // 设置请求体
+        alipayRequest.setBizModel(model);
+
+        String form = "";
+        try {
+            // 调用SDK生成表单
+            form = alipayClient.pageExecute(alipayRequest).getBody();
+            log.info(form);
+            return form;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+            throw new ServiceException("支付异常");
+        }
     }
 
     @Override
@@ -72,7 +82,7 @@ public class AlipayServiceImpl implements AlipayService {
         }
 
     }
-    
+
     /**
      * 查看是否有交易记录是否可以关闭
      * 官方文档：https://opendocs.alipay.com/open/4e2d51d1_alipay.trade.query?scene=common&pathHash=8abc6ffe

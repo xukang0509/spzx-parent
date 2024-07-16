@@ -99,7 +99,8 @@ public class CartController extends BaseController {
     @Operation(summary = "删除用户购物车列表中选中商品列表")
     @InnerAuth
     @GetMapping("/deleteCartCheckedList/{userId}")
-    public R<Boolean> deleteCartCheckedList(@PathVariable("userId") Long userId) {
-        return R.ok(cartService.deleteCartCheckedList(userId));
+    public R<Void> deleteCartCheckedList(@PathVariable("userId") Long userId) {
+        cartService.deleteCartCheckedList(userId);
+        return R.ok();
     }
 }

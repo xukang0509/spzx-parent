@@ -52,5 +52,5 @@ public interface CartService {
 
     Boolean updateCartPrice(Long userId);
 
-    Boolean deleteCartCheckedList(Long userId);
+    void deleteCartCheckedList(Long userId);
 }

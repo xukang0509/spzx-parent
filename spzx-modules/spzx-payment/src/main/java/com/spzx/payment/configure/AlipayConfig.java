@@ -11,7 +11,7 @@ public class AlipayConfig {
     @Value("${alipay.alipay_url}")
     private String alipay_url;
 
-    @Value("alipay.app_private_key")
+    @Value("${alipay.app_private_key}")
     private String app_private_key;
 
     @Value("${alipay.app_id}")

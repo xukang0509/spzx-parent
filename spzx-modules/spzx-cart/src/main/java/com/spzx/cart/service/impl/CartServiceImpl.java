@@ -172,7 +172,7 @@ public class CartServiceImpl implements CartService {
 
     @Async
     @Override
-    public Boolean deleteCartCheckedList(Long userId) {
+    public void deleteCartCheckedList(Long userId) {
         BoundHashOperations<String, String, CartInfo> cart = getCart(userId);
         List<CartInfo> cartInfoList = cart.values();
         if (!CollectionUtils.isEmpty(cartInfoList)) {
@@ -182,7 +182,6 @@ public class CartServiceImpl implements CartService {
                 }
             }
         }
-        return true;
     }
 
     /**
